@@ -97,6 +97,7 @@ xcopy $(OutDir)\Engine.lib ..\Library\Engine\$(Platform)\$(Configuration)\ /e /y
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Actor\Actor.h" />
+    <ClInclude Include="Actor\ObjectPool.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Common\RTTI.h" />

@@ -100,6 +100,8 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor\Tower\CompilerTurret.cpp" />
+    <ClCompile Include="Actor\Tower\SystemCore.cpp" />
     <ClCompile Include="Actor\Tower\Tower.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Game\Game.cpp" />
@@ -108,6 +110,8 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Actor\Player\PlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor\Tower\CompilerTurret.h" />
+    <ClInclude Include="Actor\Tower\SystemCore.h" />
     <ClInclude Include="Actor\Tower\Tower.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Level\GameLevel.h" />

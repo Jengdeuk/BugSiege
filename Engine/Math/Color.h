@@ -2,8 +2,6 @@
 
 #include "Common/Common.h"
 
-#include <Windows.h>
-
 namespace JD
 {
 	enum class JD_API Color : unsigned short
@@ -23,6 +21,6 @@ namespace JD
 		Red = 12,
 		Magenta = 13,
 		Yellow = 14,
-		White = 15
+		White = 15,
 	};
 }

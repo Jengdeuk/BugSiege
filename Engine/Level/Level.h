@@ -33,7 +33,7 @@ namespace JD
 		virtual void TransformUpdate(float deltaTime);
 
 	public:
-		void AddNewActor(std::unique_ptr<Actor> newActor);
+		void AddNewActor(std::unique_ptr<Actor>&& newActor);
 		void ProcessAddAndDestroyActors();
 
 	protected:

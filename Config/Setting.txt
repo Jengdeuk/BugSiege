@@ -1,5 +1,5 @@
 frameRate = 120
-screenW = 64
+screenW = 104
 screenH = 64
-mapW = 64
+mapW = 104
 mapH = 54

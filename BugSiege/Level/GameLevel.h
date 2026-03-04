@@ -5,9 +5,15 @@
 #include "Math/Vector2.h"
 #include "Util/Timer.h"
 
+namespace JD
+{
+	template <typename T>
+	class ObjectPool;
+}
+
 using namespace JD;
 
-class Player;
+class SystemCore;
 
 class GameLevel : public Level
 {
@@ -25,6 +31,10 @@ public:
 
 private:
 	void DrawHUD();
+	void DrawBorderLine();
+
+private:
+	std::unique_ptr<ObjectPool<SystemCore>> systemCorePool;
 
 private:
 	Vector2<int> mapSize;

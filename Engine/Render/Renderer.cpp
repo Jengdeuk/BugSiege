@@ -108,7 +108,7 @@ namespace JD
 				}
 
 				frame->charInfoArray[index].Char.AsciiChar = command.text[x - startX];
-				frame->charInfoArray[index].Attributes = static_cast<WORD>(command.color);
+				frame->charInfoArray[index].Attributes = command.color;
 
 				frame->sortingOrderArray[index] = command.sortingOrder;
 			}
@@ -122,6 +122,11 @@ namespace JD
 	}
 
 	void Renderer::Submit(const char* text, const Vector2<int>& position, Color color, int sortingOrder)
+	{
+		renderQueue.emplace_back(RenderCommand{ text, position, static_cast<WORD>(color), sortingOrder });
+	}
+
+	void Renderer::Submit(const char* text, const Vector2<int>& position, WORD color, int sortingOrder)
 	{
 		renderQueue.emplace_back(RenderCommand{ text, position, color, sortingOrder });
 	}

@@ -28,6 +28,7 @@ namespace JD
 }
 
 #define RTTI_DECLARATIONS(Type, ParentType)                                             \
+friend class RTTI;                                                                      \
 protected:                                                                              \
     static std::uintptr_t TypeIdClass() {                                               \
         static char unique;                                                             \

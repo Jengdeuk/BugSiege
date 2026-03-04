@@ -7,7 +7,7 @@
 namespace JD
 {
 	static const Vector2<float> gridSize{ 256.0f, 256.0f };
-	static const Vector2<float> startPos{ (gridSize.x - 1.0f) / 2.0f, (gridSize.y - 1) / 2.0f };
+	static const Vector2<float> startPos{ (gridSize.x - 1.0f) / 2.0f - 1.0f, (gridSize.y - 1) / 2.0f - 1.0f };
 
 	Camera::Camera(const float moveSpeed)
 		: moveSpeed(moveSpeed)

@@ -1,5 +1,6 @@
 #include "Level.h"
 #include "Actor/Actor.h"
+#include "Actor/ObjectPool.h"
 
 namespace JD
 {
@@ -56,7 +57,7 @@ namespace JD
 		}
 	}
 
-	void Level::AddNewActor(std::unique_ptr<Actor> newActor)
+	void Level::AddNewActor(std::unique_ptr<Actor>&& newActor)
 	{
 		addRequestedActors.emplace_back(std::move(newActor));
 		addRequestedActors.back()->SetOwner(this);
@@ -68,6 +69,10 @@ namespace JD
 		{
 			if ((*it)->DestroyRequested())
 			{
+				if (IObjectPool* actorPool = (*it)->GetOwnerPool())
+				{
+					actorPool->Release(std::move(*it));
+				}
 				it = actors.erase(it);
 			}
 			else

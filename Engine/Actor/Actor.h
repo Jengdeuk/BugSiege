@@ -10,12 +10,13 @@
 namespace JD
 {
 	class Level;
+	class IObjectPool;
 
 	class JD_API Actor : public RTTI
 	{
 		RTTI_DECLARATIONS(Actor, RTTI)
 
-		struct InitData
+		struct ActorData
 		{
 			const char* image = nullptr;
 			Vector2<float> position;
@@ -35,14 +36,7 @@ namespace JD
 		}
 
 	public:
-		Actor() = default;
-		Actor(const InitData& initData);
-		virtual ~Actor();
-
-		Actor(const Actor&) = delete;
-		Actor& operator=(const Actor&) = delete;
-
-	public:
+		void Initialize(const ActorData& initData);
 		virtual void BeginPlay();
 		virtual void Tick(float deltaTime);
 		virtual void Draw();
@@ -62,35 +56,39 @@ namespace JD
 		inline bool DestroyRequested() const { return destroyRequested; }
 
 	public:
-		inline void SetOwner(Level* newOwner) { owner = newOwner; }
-		inline Level* GetOwner() const { return owner; }
-
-		inline void SetPosition(const Vector2<float>& newPosition) { position = newPosition; }
-		inline const Vector2<float>& GetPosition() const { return position; }
+		inline const ActorData& GetActorData() const { return actorData; }
 
 		inline void SetCollisionFilter(const CollisionFilter& filter) { collisionFilter = filter; }
 		inline const CollisionFilter& GetCollisionFilter() const { return collisionFilter; }
+
+		inline void SetOwner(Level* newOwner) { owner = newOwner; }
+		inline Level* GetOwner() const { return owner; }
+
+		inline void SetOwnerPool(IObjectPool* newOwnerPool) { ownerPool = newOwnerPool; }
+		inline IObjectPool* GetOwnerPool() const { return ownerPool; }
+
+		inline void SetPosition(const Vector2<float>& newPosition) { position = newPosition; }
+		inline const Vector2<float>& GetPosition() const { return position; }
 
 		void SetImage(const char* newImage);
 		void SetImage(std::unique_ptr<char[]> newImage);
 		inline void SetColor(const Color newColor) { color = newColor; }
 
-		inline const InitData& GetInitData() const { return initData; }
+	private:
+		ActorData actorData;
+		CollisionFilter collisionFilter;
 
 	private:
 		bool hasBeganPlay = false;
 		bool isActive = true;
 		bool destroyRequested = false;
 		Level* owner = nullptr;
+		IObjectPool* ownerPool = nullptr;
 
 	private:
 		std::unique_ptr<char[]> image = nullptr;
 		Vector2<float> position{};
 		Color color = Color::White;
 		int sortingOrder = 0;
-
-	private:
-		InitData initData;
-		CollisionFilter collisionFilter;
 	};
 }

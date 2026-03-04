@@ -1,6 +1,7 @@
 #include "Input.h"
 #include "Util/Util.h"
 #include "Engine/Engine.h"
+#include "Render/Renderer.h"
 
 #include <Windows.h>
 #include <cassert>
@@ -82,18 +83,17 @@ namespace JD
 	void Input::ProcessInput()
 	{
 		static HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);
-		static bool initialized = false;
-		if (!initialized)
-		{
-			initialized = true;
 
-			DWORD mode;
-			GetConsoleMode(inputHandle, &mode);
-			mode |= ENABLE_MOUSE_INPUT;
-			mode |= ENABLE_EXTENDED_FLAGS;
-			mode &= ~ENABLE_QUICK_EDIT_MODE;
-			SetConsoleMode(inputHandle, mode);
-		}
+		DWORD mode{};
+		GetConsoleMode(inputHandle, &mode);
+
+		DWORD desired = mode;
+		desired |= ENABLE_MOUSE_INPUT;
+		desired |= ENABLE_EXTENDED_FLAGS;
+		desired &= ~ENABLE_QUICK_EDIT_MODE;
+
+		if (mode != desired)
+			SetConsoleMode(inputHandle, desired);
 
 		const int recordCount = 256;
 		INPUT_RECORD records[recordCount] = {};
@@ -126,7 +126,7 @@ namespace JD
 						mousePosition.y = record.Event.MouseEvent.dwMousePosition.Y;
 
 						//mousePosition.x = Util::Clamp<int>(mousePosition.x, 0, Engine::Instance().GetMapSize().x - 1);
-						//mousePosition.y = Util::Clamp<int>(mousePosition.y, 0, Engine::Instance().GetMapSize().y - 1);
+						//mousePosition.y = Util::Clamp<int>(mousePosition.y, 9, Engine::Instance().GetMapSize().y + 9);
 
 						keyState[VK_LBUTTON].isKeyDown = (record.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
 						keyState[VK_RBUTTON].isKeyDown = (record.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) != 0;

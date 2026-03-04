@@ -26,7 +26,7 @@ namespace JD
 		{
 			const char* text = nullptr;
 			Vector2<int> position;
-			Color color = Color::Gray;
+			WORD color = 0;
 			int sortingOrder = 0;
 		};
 
@@ -44,6 +44,7 @@ namespace JD
 	public:
 		void Draw();
 		void Submit(const char* text, const Vector2<int>& position, Color color = Color::White, int sortingOrder = 0);
+		void Submit(const char* text, const Vector2<int>& position, WORD color, int sortingOrder = 0);
 
 	public:
 		inline void SetViewTransform(const Vector2<int>& transform) { viewTransform = transform; }

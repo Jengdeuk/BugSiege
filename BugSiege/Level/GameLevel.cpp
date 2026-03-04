@@ -6,8 +6,10 @@
 #include "Util/Util.h"
 
 #include "Game/Game.h"
+
+#include "Actor/ObjectPool.h"
 #include "Actor/Player/PlayerController.h"
-#include "Actor/Tower/Tower.h"
+#include "Actor/Tower/SystemCore.h"
 
 #include <memory>
 
@@ -19,43 +21,33 @@ GameLevel::GameLevel(const Vector2<int>& mapSize)
 	std::unique_ptr<PlayerController> newPlayerController = std::make_unique<PlayerController>();
 	AddNewActor(std::move(newPlayerController));
 
-	// Spawn Tower
-	Actor::InitData initData;
-	initData.image = "@";
-	initData.color = Color::Cyan;
-	initData.sortingOrder = 15;
-	initData.position = Vector2<float>(127.0f, 127.0f);
-	AddNewActor(std::make_unique<Tower>(initData));
-	initData.position = Vector2<float>(127.0f, 128.0f);
-	AddNewActor(std::make_unique<Tower>(initData));
-	initData.position = Vector2<float>(128.0f, 127.0f);
-	AddNewActor(std::make_unique<Tower>(initData));
-	initData.position = Vector2<float>(128.0f, 128.0f);
-	AddNewActor(std::make_unique<Tower>(initData));
+	// Spawn SystemCore
+	systemCorePool = std::make_unique<ObjectPool<SystemCore>>(4);
 
-	initData.image = "@";
-	initData.color = Color::Red;
-	initData.position = Vector2<float>(0.0f, 0.0f);
-	initData.sortingOrder = 15;
-	AddNewActor(std::make_unique<Tower>(initData));
+	Actor::ActorData actorData;
+	actorData.image = "@";
+	actorData.color = Color::Cyan;
+	actorData.sortingOrder = 15;
 
-	initData.image = "@";
-	initData.color = Color::Red;
-	initData.position = Vector2<float>(255.0f, 0.0f);
-	initData.sortingOrder = 15;
-	AddNewActor(std::make_unique<Tower>(initData));
+	actorData.position = Vector2<float>(127.0f, 127.0f);
+	std::unique_ptr<SystemCore> systemCore = systemCorePool->Acquire();
+	systemCore->As<Actor>()->Initialize(actorData);
+	AddNewActor(std::move(systemCore));
 
-	initData.image = "@";
-	initData.color = Color::Red;
-	initData.position = Vector2<float>(0.0f, 255.0f);
-	initData.sortingOrder = 15;
-	AddNewActor(std::make_unique<Tower>(initData));
+	actorData.position = Vector2<float>(127.0f, 128.0f);
+	systemCore = systemCorePool->Acquire();
+	systemCore->As<Actor>()->Initialize(actorData);
+	AddNewActor(std::move(systemCore));
 
-	initData.image = "@";
-	initData.color = Color::Red;
-	initData.position = Vector2<float>(255.0f, 255.0f);
-	initData.sortingOrder = 15;
-	AddNewActor(std::make_unique<Tower>(initData));
+	actorData.position = Vector2<float>(128.0f, 127.0f);
+	systemCore = systemCorePool->Acquire();
+	systemCore->As<Actor>()->Initialize(actorData);
+	AddNewActor(std::move(systemCore));
+
+	actorData.position = Vector2<float>(128.0f, 128.0f);
+	systemCore = systemCorePool->Acquire();
+	systemCore->As<Actor>()->Initialize(actorData);
+	AddNewActor(std::move(systemCore));
 }
 
 void GameLevel::Tick(float deltaTime)
@@ -81,33 +73,6 @@ void GameLevel::Draw()
 
 void GameLevel::DrawHUD()
 {
-	static const int screenX = Engine::Instance().GetScreenSize().x;
-	static const int screenY = Engine::Instance().GetScreenSize().y;
-
-	Renderer::Instance().Submit("+--------------------------------------------------------------+", Vector2<int>(0, 0), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 1), Color::Gray);
-	Renderer::Instance().Submit("Terminal Defense: Bug Siege", Vector2<int>(1, 1), Color::Cyan);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 1), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 2), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 2), Color::Gray);
-	Renderer::Instance().Submit("+--------------------------------------------------------------+", Vector2<int>(0, 3), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 4), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 4), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 5), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 5), Color::Gray);
-	Renderer::Instance().Submit("+--------------------------------------------------------------+", Vector2<int>(0, 6), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 7), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 7), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 8), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 8), Color::Gray);
-	Renderer::Instance().Submit("+--------------------------------------------------------------+", Vector2<int>(0, 9), Color::Gray);
-	for (int i = 10; i < screenY - 1; ++i)
-	{
-		Renderer::Instance().Submit("|", Vector2<int>(0, i), Color::Gray);
-		Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, i), Color::Gray);
-	}
-	Renderer::Instance().Submit("+--------------------------------------------------------------+", Vector2<int>(0, screenY - 1), Color::Gray);
-
 	// time
 	sprintf_s(buffer_stime, "%02d:%02d", static_cast<int>(survivalTime / 60), static_cast<int>(survivalTime) % 60);
 	Renderer::Instance().Submit(buffer_stime, Vector2<int>(1, 2), Color::Gray);
@@ -120,4 +85,36 @@ void GameLevel::DrawHUD()
 	// fps
 	sprintf_s(buffer_fps, "FPS:%d", static_cast<int>(1.0f / lastDeltaTime));
 	Renderer::Instance().Submit(buffer_fps, Vector2<int>(1, 5), Color::DarkGray);
+
+	DrawBorderLine();
+}
+
+void GameLevel::DrawBorderLine()
+{
+	static const int screenX = Engine::Instance().GetScreenSize().x;
+	static const int screenY = Engine::Instance().GetScreenSize().y;
+
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 0), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 1), Color::Gray);
+	Renderer::Instance().Submit("Terminal Defense: Bug Siege", Vector2<int>(1, 1), Color::Cyan);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 1), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 2), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 2), Color::Gray);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 3), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 4), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 4), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 5), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 5), Color::Gray);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 6), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 7), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 7), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 8), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 8), Color::Gray);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 9), Color::Gray);
+	for (int i = 10; i < screenY - 1; ++i)
+	{
+		Renderer::Instance().Submit("|", Vector2<int>(0, i), Color::Gray);
+		Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, i), Color::Gray);
+	}
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, screenY - 1), Color::Gray);
 }

@@ -2,6 +2,10 @@
 
 #include "Core/Input.h"
 #include "Engine/Engine.h"
+#include "Render/Renderer.h"
+#include "Actor/Tower/Tower.h"
+
+static const Tower::TowerData compilerTurretInitData{ 1.0f, 3.0f, 1 };
 
 void PlayerController::BeginPlay()
 {
@@ -15,6 +19,14 @@ void PlayerController::Tick(float deltaTime)
 	Super::Tick(deltaTime);
 
 	InputCameraMovement(deltaTime);
+}
+
+void PlayerController::Draw()
+{
+	const int mouseX = Input::Instance().MousePosition().x;
+	const int mouseY = Input::Instance().MousePosition().y;
+
+	Renderer::Instance().Submit("C", { mouseX, mouseY }, WORD(Color::Green) | WORD(Color::DarkBlue) << 4);
 }
 
 void PlayerController::InputCameraMovement(float deltaTime)

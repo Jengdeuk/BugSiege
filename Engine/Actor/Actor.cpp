@@ -6,24 +6,20 @@
 
 namespace JD
 {
-	Actor::Actor(const InitData& initData)
-		: initData(initData),
-		position(initData.position),
-		color(initData.color),
-		sortingOrder(initData.sortingOrder)
+	void Actor::Initialize(const ActorData& initData)
 	{
-		if (initData.image == nullptr)
+		hasBeganPlay = false;
+
+		actorData = initData;
+		position = initData.position;
+		color = initData.color;
+		sortingOrder = initData.sortingOrder;
+		if (actorData.image)
 		{
-			return;
+			size_t length = strlen(actorData.image) + 1;
+			this->image = std::make_unique<char[]>(length);
+			std::memcpy(this->image.get(), actorData.image, length);
 		}
-
-		size_t length = strlen(initData.image) + 1;
-		this->image = std::make_unique<char[]>(length);
-		std::memcpy(this->image.get(), initData.image, length);
-	}
-
-	Actor::~Actor()
-	{
 	}
 
 	void Actor::BeginPlay()

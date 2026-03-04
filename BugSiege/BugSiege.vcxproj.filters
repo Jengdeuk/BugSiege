@@ -30,6 +30,12 @@
     <ClCompile Include="Actor\Player\PlayerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Actor\Tower\SystemCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor\Tower\CompilerTurret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Actor\Tower\Tower.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,6 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Actor\Player\PlayerController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\Tower\SystemCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\Tower\CompilerTurret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Actor\Tower\Tower.h">

@@ -80,7 +80,7 @@ void MenuLevel::Draw()
 		Renderer::Instance().Submit(
 			items[i]->text.get(),
 			Vector2<int>(
-				screenSize.x / 2 - static_cast<int>(strlen(items[i]->text.get())) / 2,
+				screenSize.x - static_cast<int>(strlen(items[i]->text.get()))/*screenSize.x / 2 - static_cast<int>(strlen(items[i]->text.get())) / 2*/,
 				screenSize.y / 2 + 4 + i
 			),
 			textColor

@@ -14,6 +14,7 @@ class PlayerController : public Actor
 public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float timeDelta) override;
+	virtual void Draw() override;
 
 private:
 	void InputCameraMovement(float deltaTime);
