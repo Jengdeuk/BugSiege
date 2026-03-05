@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Level/Level.h"
+#include "Common/Enums.h"
 
 #include "Math/Vector2.h"
 #include "Util/Timer.h"
@@ -14,6 +15,9 @@ namespace JD
 using namespace JD;
 
 class SystemCore;
+class CompilerTurret;
+
+class Segfault;
 
 class GameLevel : public Level
 {
@@ -27,6 +31,9 @@ public:
 	virtual void Draw() override;
 
 public:
+	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos);
+
+public:
 	inline const Vector2<int>& GetMapSize() const { return mapSize; }
 
 private:
@@ -35,6 +42,10 @@ private:
 
 private:
 	std::unique_ptr<ObjectPool<SystemCore>> systemCorePool;
+	std::unique_ptr<ObjectPool<CompilerTurret>> compilerTurretPool;
+
+private:
+	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
 
 private:
 	Vector2<int> mapSize;
@@ -45,6 +56,7 @@ private:
 
 private:
 	char buffer_camPos[256] = {};
+	char buffer_mousePos[256] = {};
 	char buffer_stime[256] = {};
 	char buffer_fps[256] = {};
 };

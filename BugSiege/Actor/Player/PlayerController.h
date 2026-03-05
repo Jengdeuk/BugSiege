@@ -2,6 +2,7 @@
 
 #include "Actor/Actor.h"
 #include "Camera/Camera.h"
+#include "Common/Enums.h"
 
 #include <memory>
 
@@ -17,7 +18,17 @@ public:
 	virtual void Draw() override;
 
 private:
+	void ProcessInput(float deltaTime);
+
+private:
+	void InputSelectTowerTypeToBuild();
+	void InputSelectGroundToBuild();
+
+private:
 	void InputCameraMovement(float deltaTime);
+
+private:
+	TowerType selectedTowerTypeToBuild = TowerType::Count;
 
 private:
 	std::unique_ptr<Camera> camera;

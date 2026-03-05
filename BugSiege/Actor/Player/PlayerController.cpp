@@ -3,9 +3,14 @@
 #include "Core/Input.h"
 #include "Engine/Engine.h"
 #include "Render/Renderer.h"
+
+#include "Level/GameLevel.h"
 #include "Actor/Tower/Tower.h"
 
-static const Tower::TowerData compilerTurretInitData{ 1.0f, 3.0f, 1 };
+static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Count)] =
+{
+	{ 1, 3.0f, 1.0f },
+};
 
 void PlayerController::BeginPlay()
 {
@@ -17,16 +22,81 @@ void PlayerController::BeginPlay()
 void PlayerController::Tick(float deltaTime)
 {
 	Super::Tick(deltaTime);
-
-	InputCameraMovement(deltaTime);
+	ProcessInput(deltaTime);
 }
 
 void PlayerController::Draw()
 {
-	const int mouseX = Input::Instance().MousePosition().x;
-	const int mouseY = Input::Instance().MousePosition().y;
+	const Vector2<int> mousePos = Input::Instance().MousePosition();
 
-	Renderer::Instance().Submit("C", { mouseX, mouseY }, WORD(Color::Green) | WORD(Color::DarkBlue) << 4);
+	switch (selectedTowerTypeToBuild)
+	{
+	case TowerType::CompilerTurret:
+		Renderer::Instance().Submit("C", mousePos, WORD(Color::Green) | WORD(Color::DarkBlue) << 4, 10);
+		break;
+	default:
+		return;
+	}
+
+	const int typeIdx = static_cast<int>(selectedTowerTypeToBuild);
+
+	const int cx = mousePos.x;
+	const int cy = mousePos.y;
+	const int r = static_cast<int>(towerInitTowerData[typeIdx].radius);
+	for (int y = cy - r; y <= cy + r; ++y)
+	{
+		for (int x = cx - r; x <= cx + r; ++x)
+		{
+			if (x == cx && y == cy)
+			{
+				continue;
+			}
+
+			int dx = x - cx;
+			int dy = y - cy;
+			if (dx * dx + dy * dy <= r * r)
+			{
+				Renderer::Instance().Submit(" ", { x, y }, WORD(Color::Blue) << 4, 10);
+			}
+		}
+	}
+}
+
+
+void PlayerController::ProcessInput(float deltaTime)
+{
+	InputSelectTowerTypeToBuild();
+	InputSelectGroundToBuild();
+	InputCameraMovement(deltaTime);
+}
+
+void PlayerController::InputSelectTowerTypeToBuild()
+{
+	if (Input::Instance().GetKeyDown('R'))
+	{
+		selectedTowerTypeToBuild = TowerType::Count;
+	}
+	else if (Input::Instance().GetKeyDown('1'))
+	{
+		selectedTowerTypeToBuild = TowerType::CompilerTurret;
+	}
+}
+
+void PlayerController::InputSelectGroundToBuild()
+{
+	if (selectedTowerTypeToBuild == TowerType::Count)
+	{
+		return;
+	}
+
+	if (Input::Instance().GetMouseButtonDown(0))
+	{
+		if (GetOwner()->As<GameLevel>()->BuildTowerToGround(selectedTowerTypeToBuild, Input::Instance().MouseWorldPosition()))
+		{
+			selectedTowerTypeToBuild = TowerType::Count;
+		}
+		return;
+	}
 }
 
 void PlayerController::InputCameraMovement(float deltaTime)
@@ -37,31 +107,29 @@ void PlayerController::InputCameraMovement(float deltaTime)
 		return;
 	}
 
-	static const int mapX = Engine::Instance().GetMapSize().x;
-	static const int mapY = Engine::Instance().GetMapSize().y;
+	static const Vector2<int> mapSize = Engine::Instance().GetMapSize();
 
-	const int mouseX = Input::Instance().MousePosition().x;
-	const int mouseY = Input::Instance().MousePosition().y;
+	const Vector2<int> mousePos = Input::Instance().MousePosition();
 
 	Vector2<float> moveDirection;
 
 	bool isMove = false;
-	if (Input::Instance().GetKey('D') || mouseX >= mapX - 1)
+	if (Input::Instance().GetKey('D') || mousePos.x >= mapSize.x - 1)
 	{
 		isMove = true;
 		moveDirection.x = 1;
 	}
-	if (Input::Instance().GetKey('A') || mouseX <= 0)
+	if (Input::Instance().GetKey('A') || mousePos.x <= 0)
 	{
 		isMove = true;
 		moveDirection.x = -1;
 	}
-	if (Input::Instance().GetKey('W') || mouseY <= 9)
+	if (Input::Instance().GetKey('W') || mousePos.y <= 9)
 	{
 		isMove = true;
 		moveDirection.y = 1;
 	}
-	if (Input::Instance().GetKey('S') || mouseY >= mapY + 9)
+	if (Input::Instance().GetKey('S') || mousePos.y >= mapSize.y + 9)
 	{
 		isMove = true;
 		moveDirection.y = -1;

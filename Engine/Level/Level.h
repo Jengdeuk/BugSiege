@@ -1,27 +1,21 @@
 #pragma once
 
 #include "Common/RTTI.h"
+#include "Actor/Actor.h"
 
 #include <memory>
 #include <vector>
 
 namespace JD
 {
-	class Actor;
-
 	class JD_API Level : public RTTI
 	{
 		RTTI_DECLARATIONS(Level, RTTI)
 
 	public:
-		Level();
-		virtual ~Level();
-
+		Level() = default;
 		Level(const Level&) = delete;
 		Level& operator=(const Level&) = delete;
-
-		Level(Level&&) noexcept;
-		Level& operator=(Level&&) noexcept;
 
 	public:
 		virtual void BeginPlay();

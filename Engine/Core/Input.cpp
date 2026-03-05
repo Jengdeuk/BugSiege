@@ -80,6 +80,18 @@ namespace JD
 		return keyState[keyCode].isKeyDown;
 	}
 
+	Vector2<float> Input::MouseWorldPosition()
+	{
+		static const Vector2<int> mapHalfSize = Engine::Instance().GetMapSize() / 2;
+
+		Vector2<int> viewPos = mousePosition;
+		viewPos.y -= 10;
+		viewPos -= mapHalfSize;
+		viewPos.y *= -1;
+
+		return Vector2<float>(viewPos + Renderer::Instance().GetViewTransform() * -1);
+	}
+
 	void Input::ProcessInput()
 	{
 		static HANDLE inputHandle = GetStdHandle(STD_INPUT_HANDLE);

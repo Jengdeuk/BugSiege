@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Actor/Actor.h"
+#include "Actor/Tower/Tower.h"
 
 using namespace JD;
 
-class CompilerTurret : public Actor
+class CompilerTurret : public Tower
 {
-	RTTI_DECLARATIONS(CompilerTurret, Actor)
+	RTTI_DECLARATIONS(CompilerTurret, Tower)
 
 public:
 
 };
-

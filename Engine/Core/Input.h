@@ -34,6 +34,7 @@ namespace JD
 		bool GetMouseButtonDown(int buttonCode);
 		bool GetMouseButtonUp(int buttonCode);
 		bool GetMouseButton(int buttonCode);
+		Vector2<float> MouseWorldPosition();
 		inline const Vector2<int>& MousePosition() const { return mousePosition; }
 
 	private:

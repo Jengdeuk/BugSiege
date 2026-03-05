@@ -10,13 +10,13 @@ class Tower : public Actor
 
 	struct TowerData
 	{
-		float reloadTime = 0.0f;
-		float radius = 0.0f;
 		int damage = 0;
+		float radius = 0.0f;
+		float reloadTime = 0.0f;
 	};
 
 public:
-
+	void Initialize(const TowerData& initData);
 
 private:
 	TowerData towerData;

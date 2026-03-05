@@ -5,7 +5,12 @@
 #include <memory>
 #include <vector>
 
-namespace JD { class Level; }
+namespace JD
+{
+	class Level;
+}
+
+using namespace JD;
 
 class Game
 {
@@ -36,6 +41,6 @@ public:
 	void QuitEngine();
 
 private:
-	std::vector<std::unique_ptr<JD::Level>> levels;
+	std::vector<std::unique_ptr<Level>> levels;
 	State state = State::GamePlay;
 };

@@ -22,34 +22,21 @@ namespace JD
         virtual ~ObjectPool() = default;
 
     public:
-        ObjectPool(const int size = 0)
+        ObjectPool(const int size = 2)
         {
-            pool.reserve(size);
-
-            std::unique_ptr<T> obj;
-            for (int i = 0; i < size; ++i)
-            {
-                obj = std::make_unique<T>();
-                static_cast<Actor*>(obj.get())->SetOwnerPool(this);
-                pool.emplace_back(std::move(obj));
-            }
+            Reallocate(size);
         }
 
     public:
         std::unique_ptr<T> Acquire()
         {
-            std::unique_ptr<T> obj;
-            if (!pool.empty())
+            if (pool.empty())
             {
-                obj = std::move(pool.back());
-                pool.pop_back();
-            }
-            else
-            {
-                obj = std::make_unique<T>();
-                static_cast<Actor*>(obj.get())->SetOwnerPool(this);
+                Reallocate(capacity);
             }
 
+            std::unique_ptr<T> obj = std::move(pool.back());
+            pool.pop_back();
             return obj;
         }
 
@@ -64,6 +51,24 @@ namespace JD
         }
 
     private:
+        void Reallocate(const int size)
+        {
+            const int newCapacity = capacity + size;
+            pool.reserve(newCapacity);
+
+            std::unique_ptr<T> obj;
+            for (int i = 0; i < size; ++i)
+            {
+                obj = std::make_unique<T>();
+                static_cast<Actor*>(obj.get())->SetOwnerPool(this);
+                pool.emplace_back(std::move(obj));
+            }
+
+            capacity = newCapacity;
+        }
+
+    private:
+        int capacity = 0;
         std::vector<std::unique_ptr<T>> pool;
     };
 }

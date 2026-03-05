@@ -100,6 +100,8 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor\Enemy\Enemy.cpp" />
+    <ClCompile Include="Actor\Enemy\Segfault.cpp" />
     <ClCompile Include="Actor\Tower\CompilerTurret.cpp" />
     <ClCompile Include="Actor\Tower\SystemCore.cpp" />
     <ClCompile Include="Actor\Tower\Tower.cpp" />
@@ -110,9 +112,12 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Actor\Player\PlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor\Enemy\Enemy.h" />
+    <ClInclude Include="Actor\Enemy\Segfault.h" />
     <ClInclude Include="Actor\Tower\CompilerTurret.h" />
     <ClInclude Include="Actor\Tower\SystemCore.h" />
     <ClInclude Include="Actor\Tower\Tower.h" />
+    <ClInclude Include="Common\Enums.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Level\GameLevel.h" />
     <ClInclude Include="Level\MenuLevel.h" />
