@@ -3,3 +3,7 @@ screenW = 104
 screenH = 64
 mapW = 104
 mapH = 54
+mapSX = 0
+mapSY = 10
+gridW = 256
+gridH = 256

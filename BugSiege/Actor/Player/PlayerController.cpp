@@ -27,7 +27,17 @@ void PlayerController::Tick(float deltaTime)
 
 void PlayerController::Draw()
 {
+	static const Vector2<int> mapStartPos = Engine::Instance().GetMapStartPos();
+	static const Vector2<int> mapSize = Engine::Instance().GetMapSize();
+
 	const Vector2<int> mousePos = Input::Instance().MousePosition();
+
+	// culling
+	if (mousePos.x <= mapStartPos.x || mousePos.x >= mapStartPos.x + mapSize.x - 1
+		|| mousePos.y <= mapStartPos.y || mousePos.y >= mapStartPos.y + mapSize.y - 1)
+	{
+		return;
+	}
 
 	switch (selectedTowerTypeToBuild)
 	{
@@ -52,6 +62,12 @@ void PlayerController::Draw()
 				continue;
 			}
 
+			// culling
+			if (x <= mapStartPos.x || x >= mapStartPos.x + mapSize.x - 1 || y <= mapStartPos.y || y >= mapStartPos.y + mapSize.y - 1)
+			{
+				continue;
+			}
+
 			int dx = x - cx;
 			int dy = y - cy;
 			if (dx * dx + dy * dy <= r * r)
@@ -61,7 +77,6 @@ void PlayerController::Draw()
 		}
 	}
 }
-
 
 void PlayerController::ProcessInput(float deltaTime)
 {

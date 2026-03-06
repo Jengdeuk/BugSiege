@@ -27,6 +27,7 @@ public:
 	GameLevel(const Vector2<int>& mapSize);
 
 public:
+	void Initialize();
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw() override;
 
@@ -41,22 +42,28 @@ private:
 	void DrawBorderLine();
 
 private:
-	std::unique_ptr<ObjectPool<SystemCore>> systemCorePool;
-	std::unique_ptr<ObjectPool<CompilerTurret>> compilerTurretPool;
-
-private:
-	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
-
-private:
 	Vector2<int> mapSize;
 
 private:
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
 
+// Grid
 private:
-	char buffer_camPos[256] = {};
-	char buffer_mousePos[256] = {};
-	char buffer_stime[256] = {};
-	char buffer_fps[256] = {};
+	Segfault* segfault = nullptr;
+	std::vector<std::vector<int>> dangerGrid;
+	std::vector<std::vector<bool>> wallGrid;
+
+// ObjectPool
+private:
+	std::unique_ptr<ObjectPool<SystemCore>> systemCorePool;
+	std::unique_ptr<ObjectPool<CompilerTurret>> compilerTurretPool;
+	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
+
+// HUD
+private:
+	char bufferCamPos[256] = {};
+	char bufferMousePos[256] = {};
+	char bufferStime[256] = {};
+	char bufferFPS[256] = {};
 };

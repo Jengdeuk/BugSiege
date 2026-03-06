@@ -110,6 +110,7 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Level\GameLevel.cpp" />
     <ClCompile Include="Level\MenuLevel.cpp" />
     <ClCompile Include="Actor\Player\PlayerController.cpp" />
+    <ClCompile Include="Navigation\AStar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\Enemy\Enemy.h" />
@@ -122,6 +123,7 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClInclude Include="Level\GameLevel.h" />
     <ClInclude Include="Level\MenuLevel.h" />
     <ClInclude Include="Actor\Player\PlayerController.h" />
+    <ClInclude Include="Navigation\AStar.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

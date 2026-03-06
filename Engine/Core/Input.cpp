@@ -83,9 +83,10 @@ namespace JD
 	Vector2<float> Input::MouseWorldPosition()
 	{
 		static const Vector2<int> mapHalfSize = Engine::Instance().GetMapSize() / 2;
+		static const Vector2<int> mapStartPos = Engine::Instance().GetMapStartPos();
 
 		Vector2<int> viewPos = mousePosition;
-		viewPos.y -= 10;
+		viewPos -= mapStartPos;
 		viewPos -= mapHalfSize;
 		viewPos.y *= -1;
 
@@ -136,9 +137,6 @@ namespace JD
 					{
 						mousePosition.x = record.Event.MouseEvent.dwMousePosition.X;
 						mousePosition.y = record.Event.MouseEvent.dwMousePosition.Y;
-
-						//mousePosition.x = Util::Clamp<int>(mousePosition.x, 0, Engine::Instance().GetMapSize().x - 1);
-						//mousePosition.y = Util::Clamp<int>(mousePosition.y, 9, Engine::Instance().GetMapSize().y + 9);
 
 						keyState[VK_LBUTTON].isKeyDown = (record.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
 						keyState[VK_RBUTTON].isKeyDown = (record.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) != 0;

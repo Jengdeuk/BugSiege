@@ -14,8 +14,12 @@ namespace JD
 			float frameRate = 0.0f;
 			int screenW = 0;
 			int screenH = 0;
+			int mapSX = 0;
+			int mapSY = 0;
 			int mapW = 0;
 			int mapH = 0;
+			int gridW = 0;
+			int gridH = 0;
 		};
 
 	private:
@@ -33,7 +37,9 @@ namespace JD
 		void QuitEngine();
 		void SetNewLevel(Level* newLevel);
 		inline const Vector2<int> GetScreenSize() const { return Vector2<int>(setting.screenW, setting.screenH); }
+		inline const Vector2<int> GetMapStartPos() const { return Vector2<int>(setting.mapSX, setting.mapSY); }
 		inline const Vector2<int> GetMapSize() const { return Vector2<int>(setting.mapW, setting.mapH); }
+		inline const Vector2<int> GetGridSize() const { return Vector2<int>(setting.gridW, setting.gridH); }
 
 	private:
 		void BeginPlay();

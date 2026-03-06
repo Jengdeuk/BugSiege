@@ -153,6 +153,14 @@ namespace JD
 			{
 				sscanf_s(token, "screenH = %d", &setting.screenH);
 			}
+			else if (strcmp(header, "mapSX") == 0)
+			{
+				sscanf_s(token, "mapSX = %d", &setting.mapSX);
+			}
+			else if (strcmp(header, "mapSY") == 0)
+			{
+				sscanf_s(token, "mapSY = %d", &setting.mapSY);
+			}
 			else if (strcmp(header, "mapW") == 0)
 			{
 				sscanf_s(token, "mapW = %d", &setting.mapW);
@@ -160,6 +168,14 @@ namespace JD
 			else if (strcmp(header, "mapH") == 0)
 			{
 				sscanf_s(token, "mapH = %d", &setting.mapH);
+			}
+			else if (strcmp(header, "gridW") == 0)
+			{
+				sscanf_s(token, "gridW = %d", &setting.gridW);
+			}
+			else if (strcmp(header, "gridH") == 0)
+			{
+				sscanf_s(token, "gridH = %d", &setting.gridH);
 			}
 
 			token = strtok_s(nullptr, "\n", &context);

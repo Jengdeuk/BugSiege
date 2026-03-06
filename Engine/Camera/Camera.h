@@ -27,5 +27,6 @@ namespace JD
 	private:
 		float moveSpeed;
 		Vector2<float> position;
+		Vector2<float> startPos;
 	};
 }

@@ -6,12 +6,15 @@
 
 namespace JD
 {
-	static const Vector2<float> gridSize{ 256.0f, 256.0f };
-	static const Vector2<float> startPos{ (gridSize.x - 1.0f) / 2.0f - 1.0f, (gridSize.y - 1) / 2.0f - 1.0f };
-
 	Camera::Camera(const float moveSpeed)
 		: moveSpeed(moveSpeed)
 	{
+		startPos =
+		{
+			(Engine::Instance().GetGridSize().x - 1.0f) / 2.0f,
+			(Engine::Instance().GetGridSize().y - 1.0f) / 2.0f
+		};
+
 		position = startPos;
 	}
 
@@ -31,13 +34,12 @@ namespace JD
 
 	void Camera::Move(const Vector2<float>& direction, float deltaTime)
 	{
-		static const float mapXH = (static_cast<float>(Engine::Instance().GetMapSize().x) - 2.0f) / 2.0f;
-		static const float mapYH = (static_cast<float>(Engine::Instance().GetMapSize().y) - 2.0f) / 2.0f;
+		static const Vector2<float> gridSize{ Engine::Instance().GetGridSize() };
+		static const Vector2<float> mapHalfSize = Vector2<float>(Engine::Instance().GetMapSize()) / 2.0f;
 
 		position += direction * moveSpeed * deltaTime;
-
-		position.x = Util::Clamp(position.x, mapXH, gridSize.x - mapXH);
-		position.y = Util::Clamp(position.y, mapYH - 1.0f, gridSize.y - (mapYH + 1.0f) - 1.0f);
+		position.x = Util::Clamp(position.x, mapHalfSize.x - 1, gridSize.x - mapHalfSize.x + 1);
+		position.y = Util::Clamp(position.y, mapHalfSize.y - 2, gridSize.y - mapHalfSize.y);
 
 		Renderer::Instance().SetViewTransform(Vector2<int>(position * -1.0f));
 	}

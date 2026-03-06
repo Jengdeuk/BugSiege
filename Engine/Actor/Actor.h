@@ -46,6 +46,7 @@ namespace JD
 
 	public:
 		bool TransformWorldToScreen(Vector2<int>& outScreenPos);
+		bool TransformWorldToScreen(const Vector2<float>& worldPosf, Vector2<int>& outScreenPos);
 
 	public:
 		void Destroy();
