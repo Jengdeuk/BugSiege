@@ -6,12 +6,17 @@
 #include "Util/Util.h"
 
 #include "Game/Game.h"
+#include "Partition/QuadTree.h"
 
 #include "Actor/ObjectPool.h"
 #include "Actor/Player/PlayerController.h"
 
 #include "Actor/Tower/SystemCore.h"
 #include "Actor/Tower/CompilerTurret.h"
+#include "Actor/Tower/DebuggerNode.h"
+#include "Actor/Tower/GarbageCollector.h"
+#include "Actor/Tower/MutexBarrier.h"
+#include "Actor/Tower/ExceptionHandler.h"
 
 #include "Actor/Enemy/Segfault.h"
 
@@ -21,12 +26,20 @@ using namespace JD;
 
 static const Actor::ActorData towerInitActorData[static_cast<int>(TowerType::Count)] =
 {
-	{ "C", {}, Color::Green, 10 },
+	{ "C", {}, Color::Green, 11 },
+	{ "D", {}, Color::Green, 11 },
+	{ "G", {}, Color::Green, 11 },
+	{ "M", {}, Color::Green, 11 },
+	{ "E", {}, Color::Green, 11 }
 };
 
 static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Count)] =
 {
-	{ 1, 3.0f, 1.0f },
+	{ 1, 1, 4.0f, 0.25f },
+	{ 2, 1, 6.0f, 0.25f },
+	{ 3, 3, 3.0f, 3.0f },
+	{ 4, 1, 5.0f, 5.0f },
+	{ 5, 1, 4.0f, 1.0f }
 };
 
 static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Count)] =
@@ -35,7 +48,7 @@ static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Cou
 	{  },
 	{  },
 	{  },
-	{ "S", {}, Color::Magenta, 10 }
+	{ "S", {}, Color::Magenta, 11 }
 };
 
 static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Count)] =
@@ -56,12 +69,17 @@ GameLevel::GameLevel(const Vector2<int>& mapSize)
 void GameLevel::Initialize()
 {
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
+	quadTree = std::make_unique<QuadTree>();
 
 	std::unique_ptr<PlayerController> newPlayerController = std::make_unique<PlayerController>();
 	AddNewActor(std::move(newPlayerController));
 
 	systemCorePool = std::make_unique<ObjectPool<SystemCore>>();
 	compilerTurretPool = std::make_unique<ObjectPool<CompilerTurret>>();
+	debuggerNodePool = std::make_unique<ObjectPool<DebuggerNode>>();
+	garbageCollectorPool = std::make_unique<ObjectPool<GarbageCollector>>();
+	mutexBarrierPool = std::make_unique<ObjectPool<MutexBarrier>>();
+	exceptionHandlerPool = std::make_unique<ObjectPool<ExceptionHandler>>();
 	segfaultPool = std::make_unique<ObjectPool<Segfault>>();
 
 	// Spawn SystemCore
@@ -136,6 +154,8 @@ void GameLevel::Draw()
 {
 	Super::Draw();
 
+	quadTree->Draw();
+
 	DrawHUD();
 }
 
@@ -144,24 +164,38 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	const int typeIdx = static_cast<int>(type);
 	const Vector2<int> pos{ groundPos };
 
-	// Acquire and Add to Level
+	// Acquire and Add Tower to Level
 	std::unique_ptr<Tower> tower;
 	switch (type)
 	{
 	case TowerType::CompilerTurret:
 		tower = compilerTurretPool->Acquire();
 		break;
+	case TowerType::DebuggerNode:
+		tower = debuggerNodePool->Acquire();
+		break;
+	case TowerType::GarbageCollector:
+		tower = garbageCollectorPool->Acquire();
+		break;
+	case TowerType::MutexBarrier:
+		tower = mutexBarrierPool->Acquire();
+		break;
+	case TowerType::ExceptionHandler:
+		tower = exceptionHandlerPool->Acquire();
+		break;
 	default:
 		return false;
 	}
 
+	Actor* towerActor = tower->As<Actor>();
+
 	Actor::ActorData actorData{ towerInitActorData[typeIdx] };
 	actorData.position = groundPos;
-	tower->As<Actor>()->Initialize(actorData);
+	towerActor->Initialize(actorData);
 	tower->Initialize(towerInitTowerData[typeIdx]);
 	AddNewActor(std::move(tower));
 
-	// Update dangerGrid
+	// Update DangerGrid for Navigation
 	wallGrid[pos.y][pos.x] = true;
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
 	const int r = static_cast<int>(towerInitTowerData[typeIdx].radius);
@@ -183,7 +217,15 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 		}
 	}
 
+	// Insert Tower to QuadTree
+	quadTree->Insert(towerActor);
+
 	return true;
+}
+
+const Tower::TowerData& GameLevel::GetTowerInitData(const TowerType& type) const
+{
+	return towerInitTowerData[static_cast<int>(type)];
 }
 
 void GameLevel::DrawHUD()
@@ -197,7 +239,7 @@ void GameLevel::DrawHUD()
 	sprintf_s(bufferCamPos, "Cam:(%d, %d)", viewTransform.x, viewTransform.y);
 	Renderer::Instance().Submit(bufferCamPos, Vector2<int>(1, 4), Color::Gray);
 
-	// camPos
+	// mousePos
 	const Vector2<int> mousePosition{ Input::Instance().MouseWorldPosition() };
 	sprintf_s(bufferMousePos, "Mouse:(%d, %d)", mousePosition.x, mousePosition.y);
 	Renderer::Instance().Submit(bufferMousePos, Vector2<int>(1, 5), Color::Gray);

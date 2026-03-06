@@ -19,7 +19,7 @@ void Segfault::Draw()
 		{
 			return;
 		}
-		Renderer::Instance().Submit("*", screenPos, WORD(Color::Red), 10);
+		Renderer::Instance().Submit(".", screenPos, WORD(Color::Red), 5);
 	}
 }
 

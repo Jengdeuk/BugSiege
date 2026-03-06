@@ -7,9 +7,13 @@
 #include "Level/GameLevel.h"
 #include "Actor/Tower/Tower.h"
 
-static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Count)] =
+static const char imgs[5][2] =
 {
-	{ 1, 3.0f, 1.0f },
+	{ 'C', '\0' },
+	{ 'D', '\0' },
+	{ 'G', '\0' },
+	{ 'M', '\0' },
+	{ 'E', '\0' }
 };
 
 void PlayerController::BeginPlay()
@@ -39,20 +43,12 @@ void PlayerController::Draw()
 		return;
 	}
 
-	switch (selectedTowerTypeToBuild)
-	{
-	case TowerType::CompilerTurret:
-		Renderer::Instance().Submit("C", mousePos, WORD(Color::Green) | WORD(Color::DarkBlue) << 4, 10);
-		break;
-	default:
-		return;
-	}
-
 	const int typeIdx = static_cast<int>(selectedTowerTypeToBuild);
+	Renderer::Instance().Submit(imgs[typeIdx], mousePos, WORD(Color::Green) | WORD(Color::DarkBlue) << 4, 11);
 
 	const int cx = mousePos.x;
 	const int cy = mousePos.y;
-	const int r = static_cast<int>(towerInitTowerData[typeIdx].radius);
+	const int r = static_cast<int>(GetOwner()->As<GameLevel>()->GetTowerInitData(selectedTowerTypeToBuild).radius);
 	for (int y = cy - r; y <= cy + r; ++y)
 	{
 		for (int x = cx - r; x <= cx + r; ++x)
@@ -94,6 +90,22 @@ void PlayerController::InputSelectTowerTypeToBuild()
 	else if (Input::Instance().GetKeyDown('1'))
 	{
 		selectedTowerTypeToBuild = TowerType::CompilerTurret;
+	}
+	else if (Input::Instance().GetKeyDown('2'))
+	{
+		selectedTowerTypeToBuild = TowerType::DebuggerNode;
+	}
+	else if (Input::Instance().GetKeyDown('3'))
+	{
+		selectedTowerTypeToBuild = TowerType::GarbageCollector;
+	}
+	else if (Input::Instance().GetKeyDown('4'))
+	{
+		selectedTowerTypeToBuild = TowerType::MutexBarrier;
+	}
+	else if (Input::Instance().GetKeyDown('5'))
+	{
+		selectedTowerTypeToBuild = TowerType::ExceptionHandler;
 	}
 }
 

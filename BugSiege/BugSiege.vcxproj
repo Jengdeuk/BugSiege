@@ -103,6 +103,10 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Actor\Enemy\Enemy.cpp" />
     <ClCompile Include="Actor\Enemy\Segfault.cpp" />
     <ClCompile Include="Actor\Tower\CompilerTurret.cpp" />
+    <ClCompile Include="Actor\Tower\DebuggerNode.cpp" />
+    <ClCompile Include="Actor\Tower\ExceptionHandler.cpp" />
+    <ClCompile Include="Actor\Tower\GarbageCollector.cpp" />
+    <ClCompile Include="Actor\Tower\MutexBarrier.cpp" />
     <ClCompile Include="Actor\Tower\SystemCore.cpp" />
     <ClCompile Include="Actor\Tower\Tower.cpp" />
     <ClCompile Include="Client.cpp" />
@@ -111,11 +115,17 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Level\MenuLevel.cpp" />
     <ClCompile Include="Actor\Player\PlayerController.cpp" />
     <ClCompile Include="Navigation\AStar.cpp" />
+    <ClCompile Include="Partition\QuadNode.cpp" />
+    <ClCompile Include="Partition\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\Enemy\Enemy.h" />
     <ClInclude Include="Actor\Enemy\Segfault.h" />
     <ClInclude Include="Actor\Tower\CompilerTurret.h" />
+    <ClInclude Include="Actor\Tower\DebuggerNode.h" />
+    <ClInclude Include="Actor\Tower\ExceptionHandler.h" />
+    <ClInclude Include="Actor\Tower\GarbageCollector.h" />
+    <ClInclude Include="Actor\Tower\MutexBarrier.h" />
     <ClInclude Include="Actor\Tower\SystemCore.h" />
     <ClInclude Include="Actor\Tower\Tower.h" />
     <ClInclude Include="Common\Enums.h" />
@@ -124,6 +134,8 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClInclude Include="Level\MenuLevel.h" />
     <ClInclude Include="Actor\Player\PlayerController.h" />
     <ClInclude Include="Navigation\AStar.h" />
+    <ClInclude Include="Partition\QuadNode.h" />
+    <ClInclude Include="Partition\QuadTree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

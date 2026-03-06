@@ -6,6 +6,8 @@
 #include "Math/Vector2.h"
 #include "Util/Timer.h"
 
+#include "Actor/Tower/Tower.h"
+
 namespace JD
 {
 	template <typename T>
@@ -14,9 +16,13 @@ namespace JD
 
 using namespace JD;
 
+class QuadTree;
 class SystemCore;
 class CompilerTurret;
-
+class DebuggerNode;
+class GarbageCollector;
+class MutexBarrier;
+class ExceptionHandler;
 class Segfault;
 
 class GameLevel : public Level
@@ -36,6 +42,7 @@ public:
 
 public:
 	inline const Vector2<int>& GetMapSize() const { return mapSize; }
+	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
 
 private:
 	void DrawHUD();
@@ -48,16 +55,24 @@ private:
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
 
-// Grid
+// Navigation
 private:
 	Segfault* segfault = nullptr;
 	std::vector<std::vector<int>> dangerGrid;
 	std::vector<std::vector<bool>> wallGrid;
 
+// Partition
+private:
+	std::unique_ptr<QuadTree> quadTree;
+
 // ObjectPool
 private:
 	std::unique_ptr<ObjectPool<SystemCore>> systemCorePool;
 	std::unique_ptr<ObjectPool<CompilerTurret>> compilerTurretPool;
+	std::unique_ptr<ObjectPool<DebuggerNode>> debuggerNodePool;
+	std::unique_ptr<ObjectPool<GarbageCollector>> garbageCollectorPool;
+	std::unique_ptr<ObjectPool<MutexBarrier>> mutexBarrierPool;
+	std::unique_ptr<ObjectPool<ExceptionHandler>> exceptionHandlerPool;
 	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
 
 // HUD

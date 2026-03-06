@@ -3,7 +3,6 @@
 #include "Enemy.h"
 
 #include <vector>
-#include <memory>
 
 using namespace JD;
 

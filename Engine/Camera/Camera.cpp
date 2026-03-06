@@ -38,8 +38,8 @@ namespace JD
 		static const Vector2<float> mapHalfSize = Vector2<float>(Engine::Instance().GetMapSize()) / 2.0f;
 
 		position += direction * moveSpeed * deltaTime;
-		position.x = Util::Clamp(position.x, mapHalfSize.x - 1, gridSize.x - mapHalfSize.x + 1);
-		position.y = Util::Clamp(position.y, mapHalfSize.y - 2, gridSize.y - mapHalfSize.y);
+		position.x = Util::Clamp(position.x, mapHalfSize.x - 1, gridSize.x - mapHalfSize.x + 1 + 1);
+		position.y = Util::Clamp(position.y, mapHalfSize.y - 2, gridSize.y - mapHalfSize.y + 1);
 
 		Renderer::Instance().SetViewTransform(Vector2<int>(position * -1.0f));
 	}

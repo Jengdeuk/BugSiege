@@ -10,6 +10,7 @@ class Tower : public Actor
 
 	struct TowerData
 	{
+		int tier = 0;
 		int damage = 0;
 		float radius = 0.0f;
 		float reloadTime = 0.0f;
