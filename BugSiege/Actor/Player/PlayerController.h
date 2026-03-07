@@ -17,6 +17,9 @@ public:
 	virtual void Tick(float timeDelta) override;
 	virtual void Draw() override;
 
+public:
+	inline const TowerType& GetSelectedTowerTypeToBuild() const { return selectedTowerTypeToBuild; }
+
 private:
 	void ProcessInput(float deltaTime);
 

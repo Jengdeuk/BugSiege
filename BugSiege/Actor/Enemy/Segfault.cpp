@@ -17,7 +17,7 @@ void Segfault::Draw()
 		Vector2<int> screenPos;
 		if (!TransformWorldToScreen(Vector2<float>(pos), screenPos))
 		{
-			return;
+			continue;
 		}
 		Renderer::Instance().Submit(".", screenPos, WORD(Color::Red), 5);
 	}

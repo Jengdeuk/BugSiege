@@ -7,6 +7,8 @@
 
 #include <memory>
 
+class QuadNode;
+
 namespace JD
 {
 	class Level;
@@ -53,7 +55,6 @@ namespace JD
 
 	public:
 		inline bool HasBeganPlay() const { return hasBeganPlay; }
-		inline bool IsActive() const { return isActive && destroyRequested == false; }
 		inline bool DestroyRequested() const { return destroyRequested; }
 
 	public:
@@ -68,6 +69,9 @@ namespace JD
 		inline void SetOwnerPool(IObjectPool* newOwnerPool) { ownerPool = newOwnerPool; }
 		inline IObjectPool* GetOwnerPool() const { return ownerPool; }
 
+		inline void SetOwnerQuadNode(QuadNode* newOwnerQuadNode) { ownerQuadNode = newOwnerQuadNode; }
+		inline QuadNode* GetOwnerQuadNode() const { return ownerQuadNode; }
+
 		inline void SetPosition(const Vector2<float>& newPosition) { position = newPosition; }
 		inline const Vector2<float>& GetPosition() const { return position; }
 
@@ -81,10 +85,10 @@ namespace JD
 
 	private:
 		bool hasBeganPlay = false;
-		bool isActive = true;
 		bool destroyRequested = false;
 		Level* owner = nullptr;
 		IObjectPool* ownerPool = nullptr;
+		QuadNode* ownerQuadNode = nullptr;
 
 	private:
 		std::unique_ptr<char[]> image = nullptr;

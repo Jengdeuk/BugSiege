@@ -21,6 +21,7 @@ struct Bounds
 
 	inline int MaxX() const { return x + w; }
 	inline int MaxY() const { return y + h; }
+	inline bool IsIn(Vector2<int> pos) const { return pos.x >= x && pos.x < MaxX() && pos.y >= y && pos.y < MaxY(); }
 };
 
 enum class QuadType
@@ -40,18 +41,26 @@ public:
 
 public:
 	void InsertRecursive(Actor* actor);
+	bool Remove(Actor* actor);
 	void QueryRecursive(const Bounds& bounds, std::vector<QuadNode*>& possibleNodes);
 	void DrawRecursive();
 
 public:
+	bool CanMerge();
+	void MergeChildren();
+
+public:
 	inline const Bounds& GetBounds() const { return bounds; }
 	inline const std::vector<Actor*>& GetActors() const { return actors; }
+	inline QuadNode* const GetParent() const { return parent; }
 
 private:
 	bool IsDivided();
-	bool Subdivide();
+	void Subdivide();
 	std::vector<QuadType> GetQuadTypes(const Bounds& bounds);
 	QuadType TestRegion(const Bounds& bounds);
+
+private:
 	bool TransformWorldToScreen(const Vector2<int>& worldPos, Vector2<int>& outScreenPos);
 	void DrawNumber(const Vector2<int>& worldPos);
 	void DrawPoint(const Vector2<int>& worldPos);
@@ -62,6 +71,7 @@ private:
 	std::vector<Actor*> actors;
 
 private:
+	QuadNode* parent = nullptr;
 	std::unique_ptr<QuadNode> topLeft;
 	std::unique_ptr<QuadNode> topRight;
 	std::unique_ptr<QuadNode> bottomLeft;

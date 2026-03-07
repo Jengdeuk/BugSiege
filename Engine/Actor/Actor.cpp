@@ -25,6 +25,7 @@ namespace JD
 	void Actor::BeginPlay()
 	{
 		hasBeganPlay = true;
+		destroyRequested = false;
 	}
 
 	void Actor::Tick(float deltaTime)

@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "ScreenBuffer.h"
+#include "Engine/Engine.h"
 
 namespace JD
 {
@@ -129,6 +130,58 @@ namespace JD
 	void Renderer::Submit(const char* text, const Vector2<int>& position, WORD color, int sortingOrder)
 	{
 		renderQueue.emplace_back(RenderCommand{ text, position, color, sortingOrder });
+	}
+
+	bool Renderer::TransformWorldToScreen(const Vector2<float>& fworldPos, Vector2<int>& outScreenPos)
+	{
+		static const Vector2<int> mapSize = Engine::Instance().GetMapSize();
+		static const Vector2<int> mapHalfSize = mapSize / 2;
+		static const Vector2<int> mapStartPos = Engine::Instance().GetMapStartPos();
+
+		Vector2<int> worldPos = Vector2<int>(fworldPos);
+
+		// 1. world space -> view space
+		Vector2<int> viewPos = worldPos + Renderer::Instance().GetViewTransform();
+
+		// 2. veiw space -> screen space
+		outScreenPos = viewPos;
+		outScreenPos.y *= -1;
+		outScreenPos += mapHalfSize;
+		outScreenPos += mapStartPos;
+
+		// 3. culling
+		if (outScreenPos.x <= mapStartPos.x || outScreenPos.x >= mapStartPos.x + mapSize.x - 1
+			|| outScreenPos.y <= mapStartPos.y || outScreenPos.y >= mapStartPos.y + mapSize.y - 1)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Renderer::TransformWorldToScreen(const Vector2<int>& worldPos, Vector2<int>& outScreenPos)
+	{
+		static const Vector2<int> mapSize = Engine::Instance().GetMapSize();
+		static const Vector2<int> mapHalfSize = mapSize / 2;
+		static const Vector2<int> mapStartPos = Engine::Instance().GetMapStartPos();
+
+		// 1. world space -> view space
+		Vector2<int> viewPos = worldPos + GetViewTransform();
+
+		// 2. veiw space -> screen space
+		outScreenPos = viewPos;
+		outScreenPos.y *= -1;
+		outScreenPos += mapHalfSize;
+		outScreenPos += mapStartPos;
+
+		// 3. culling
+		if (outScreenPos.x <= mapStartPos.x || outScreenPos.x >= mapStartPos.x + mapSize.x - 1
+			|| outScreenPos.y <= mapStartPos.y || outScreenPos.y >= mapStartPos.y + mapSize.y - 1)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	void Renderer::Clear()

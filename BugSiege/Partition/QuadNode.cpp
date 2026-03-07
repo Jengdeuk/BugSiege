@@ -4,8 +4,9 @@
 #include "Actor/Actor.h"
 #include "Engine/Engine.h"
 
-static const int maxDepth = 5;
-static const char* imgs[] = { "0", "1", "2", "3", "4", "5" };
+static const char* imgs[] = { "0", "1", "2", "3", "4", "5", "6" };
+static const int maxActorsPerNode = 4;
+static const int maxDepth = 6;
 
 QuadNode::QuadNode(const Bounds& bounds, int depth)
 	: bounds(bounds), depth(depth)
@@ -14,14 +15,14 @@ QuadNode::QuadNode(const Bounds& bounds, int depth)
 
 void QuadNode::InsertRecursive(Actor* actor)
 {
-	const Vector2<int> actorPos = Vector2<int>(actor->GetPosition());
+	Vector2<int> actorPos = Vector2<int>(actor->GetPosition());
 	QuadType type = TestRegion({ actorPos.x, actorPos.y, 1, 1 });
 	if (type == QuadType::OutOfArea)
 	{
 		return;
 	}
 
-	if (Subdivide())
+	if (IsDivided())
 	{
 		switch (type)
 		{
@@ -42,27 +43,87 @@ void QuadNode::InsertRecursive(Actor* actor)
 	else
 	{
 		actors.emplace_back(actor);
+		actor->SetOwnerQuadNode(this);
+		if (depth < maxDepth && actors.size() == maxActorsPerNode)
+		{
+			Subdivide();
+
+			for (Actor* actor : actors)
+			{
+				actorPos = Vector2<int>(actor->GetPosition());
+				type = TestRegion({ actorPos.x, actorPos.y, 1, 1 });
+				switch (type)
+				{
+				case QuadType::TopLeft:
+					topLeft->InsertRecursive(actor);
+					break;
+				case QuadType::TopRight:
+					topRight->InsertRecursive(actor);
+					break;
+				case QuadType::BottomLeft:
+					bottomLeft->InsertRecursive(actor);
+					break;
+				case QuadType::BottomRight:
+					bottomRight->InsertRecursive(actor);
+					break;
+				}
+			}
+
+			actors.clear();
+		}
 	}
+}
+
+bool QuadNode::Remove(Actor* actor)
+{
+	for (auto it = actors.begin(); it != actors.end(); ++it)
+	{
+		if (*it == actor)
+		{
+			actors.erase(it);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void QuadNode::QueryRecursive(const Bounds& bounds, std::vector<QuadNode*>& possibleNodes)
 {
+	possibleNodes.emplace_back(this);
+
+	if (!IsDivided())
+	{
+		return;
+	}
+
+	std::vector<QuadType> quads = GetQuadTypes(bounds);
+	for (const QuadType& index : quads)
+	{
+		switch (index)
+		{
+		case QuadType::TopLeft:
+			topLeft->QueryRecursive(bounds, possibleNodes);
+			break;
+		case QuadType::TopRight:
+			topRight->QueryRecursive(bounds, possibleNodes);
+			break;
+		case QuadType::BottomLeft:
+			bottomLeft->QueryRecursive(bounds, possibleNodes);
+			break;
+		case QuadType::BottomRight:
+			bottomRight->QueryRecursive(bounds, possibleNodes);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void QuadNode::DrawRecursive()
 {
 	if (!IsDivided())
 	{
-		if (!actors.empty())
-		{
-			Vector2<int> worldPos(bounds.x + 1, bounds.MaxY() - 1);
-			Vector2<int> screenPos;
-			if (TransformWorldToScreen(worldPos, screenPos))
-			{
-				Renderer::Instance().Submit(imgs[depth + 1], screenPos, WORD(Color::Yellow), depth);
-			}
-		}
-
 		return;
 	}
 
@@ -99,9 +160,9 @@ void QuadNode::DrawRecursive()
 
 	// Draw Depth Number
 	DrawNumber(Vector2<int>(bounds.x + 1, bounds.MaxY() - 1));
-	DrawNumber(Vector2<int>(bounds.x + 1 + centerX, bounds.MaxY() - 1));
-	DrawNumber(Vector2<int>(bounds.x + 1, bounds.MaxY() - 1 - centerY));
-	DrawNumber(Vector2<int>(bounds.x + 1 + centerX, bounds.MaxY() - 1 - centerY));
+	DrawNumber(Vector2<int>(centerX + 1, bounds.MaxY() - 1));
+	DrawNumber(Vector2<int>(bounds.x + 1, centerY - 1));
+	DrawNumber(Vector2<int>(centerX + 1, centerY - 1));
 
 	topLeft->DrawRecursive();
 	topRight->DrawRecursive();
@@ -109,18 +170,60 @@ void QuadNode::DrawRecursive()
 	bottomRight->DrawRecursive();
 }
 
+bool QuadNode::CanMerge()
+{
+	if (topLeft->IsDivided() || topRight->IsDivided() || bottomLeft->IsDivided() || bottomRight->IsDivided())
+	{
+		return false;
+	}
+
+	size_t cnt = actors.size();
+	cnt += topLeft->GetActors().size();
+	cnt += topRight->GetActors().size();
+	cnt += bottomLeft->GetActors().size();
+	cnt += bottomRight->GetActors().size();
+
+	return static_cast<int>(cnt) < maxActorsPerNode;
+}
+
+void QuadNode::MergeChildren()
+{
+	for (Actor* actor : topLeft->GetActors())
+	{
+		actors.emplace_back(actor);
+		actor->SetOwnerQuadNode(this);
+	}
+	topLeft = nullptr;
+
+	for (Actor* actor : topRight->GetActors())
+	{
+		actors.emplace_back(actor);
+		actor->SetOwnerQuadNode(this);
+	}
+	topRight = nullptr;
+
+	for (Actor* actor : bottomLeft->GetActors())
+	{
+		actors.emplace_back(actor);
+		actor->SetOwnerQuadNode(this);
+	}
+	bottomLeft = nullptr;
+
+	for (Actor* actor : bottomRight->GetActors())
+	{
+		actors.emplace_back(actor);
+		actor->SetOwnerQuadNode(this);
+	}
+	bottomRight = nullptr;
+}
+
 bool QuadNode::IsDivided()
 {
 	return topLeft != nullptr;
 }
 
-bool QuadNode::Subdivide()
+void QuadNode::Subdivide()
 {
-	if (depth == maxDepth)
-	{
-		return false;
-	}
-
 	if (!IsDivided())
 	{
 		const int x = bounds.x;
@@ -131,13 +234,16 @@ bool QuadNode::Subdivide()
 		const int centerX = x + halfW;
 		const int centerY = y + halfH;
 
-		topLeft = std::make_unique<QuadNode>(Bounds{ x, y, halfW, halfH }, depth + 1);
-		topRight = std::make_unique<QuadNode>(Bounds{ centerX, y, halfW, halfH }, depth + 1);
-		bottomLeft = std::make_unique<QuadNode>(Bounds{ x, centerY, halfW, halfH }, depth + 1);
-		bottomRight = std::make_unique<QuadNode>(Bounds{ centerX, centerY, halfW, halfH }, depth + 1);
-	}
+		topLeft = std::make_unique<QuadNode>(Bounds{ x, centerY, halfW, halfH }, depth + 1);
+		topRight = std::make_unique<QuadNode>(Bounds{ centerX, centerY, halfW, halfH }, depth + 1);
+		bottomLeft = std::make_unique<QuadNode>(Bounds{ x, y, halfW, halfH }, depth + 1);
+		bottomRight = std::make_unique<QuadNode>(Bounds{ centerX, y, halfW, halfH }, depth + 1);
 
-	return true;
+		topLeft->parent = this;
+		topRight->parent = this;
+		bottomLeft->parent = this;
+		bottomRight->parent = this;
+	}
 }
 
 std::vector<QuadType> QuadNode::GetQuadTypes(const Bounds& bounds)
@@ -152,10 +258,10 @@ std::vector<QuadType> QuadNode::GetQuadTypes(const Bounds& bounds)
 	const int centerX = x + halfW;
 	const int centerY = y + halfH;
 
-	bool left = bounds.x < centerX && bounds.MaxX() >= x;
-	bool right = bounds.MaxX() >= centerX && bounds.x < this->bounds.MaxX();
-	bool top = bounds.y < centerY && bounds.MaxY() >= y;
-	bool bottom = bounds.MaxY() >= centerY && bounds.y < this->bounds.MaxY();
+	bool left = bounds.x < centerX && bounds.MaxX() - 1 >= x;
+	bool right = bounds.MaxX() - 1 >= centerX && bounds.x < this->bounds.MaxX();
+	bool top = bounds.MaxY() - 1 >= centerY && bounds.y < this->bounds.MaxY();
+	bool bottom = bounds.y < centerY && bounds.MaxY() - 1 >= y;
 
 	if (top && left)
 	{
@@ -227,7 +333,7 @@ void QuadNode::DrawNumber(const Vector2<int>& worldPos)
 	Vector2<int> screenPos;
 	if (TransformWorldToScreen(worldPos, screenPos))
 	{
-		Renderer::Instance().Submit(imgs[depth + 1], screenPos, WORD(Color::Yellow), depth + 1);
+		Renderer::Instance().Submit(imgs[depth + 1], screenPos, WORD(Color::Cyan), 0);
 	}
 }
 
@@ -236,6 +342,6 @@ void QuadNode::DrawPoint(const Vector2<int>& worldPos)
 	Vector2<int> screenPos;
 	if (TransformWorldToScreen(worldPos, screenPos))
 	{
-		Renderer::Instance().Submit("o", screenPos, WORD(Color::DarkYellow), depth);
+		Renderer::Instance().Submit("#", screenPos, WORD(Color::DarkCyan), 0);
 	}
 }

@@ -49,6 +49,9 @@ namespace JD
 	public:
 		inline void SetViewTransform(const Vector2<int>& transform) { viewTransform = transform; }
 		inline const Vector2<int>& GetViewTransform() const { return viewTransform; }
+		bool TransformWorldToScreen(const Vector2<float>& fworldPos, Vector2<int>& outScreenPos);
+		bool TransformWorldToScreen(const Vector2<int>& worldPos, Vector2<int>& outScreenPos);
+		
 
 	private:
 		void Clear();

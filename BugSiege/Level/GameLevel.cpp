@@ -69,9 +69,12 @@ GameLevel::GameLevel(const Vector2<int>& mapSize)
 void GameLevel::Initialize()
 {
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
+	dangerGrid.assign(gridSize.y, std::vector<int>(gridSize.x, 0));
+	wallGrid.assign(gridSize.y, std::vector<bool>(gridSize.x, false));
 	quadTree = std::make_unique<QuadTree>();
 
 	std::unique_ptr<PlayerController> newPlayerController = std::make_unique<PlayerController>();
+	playerController = newPlayerController.get();
 	AddNewActor(std::move(newPlayerController));
 
 	systemCorePool = std::make_unique<ObjectPool<SystemCore>>();
@@ -83,50 +86,32 @@ void GameLevel::Initialize()
 	segfaultPool = std::make_unique<ObjectPool<Segfault>>();
 
 	// Spawn SystemCore
-	{
-		Actor::ActorData actorData;
-		actorData.image = "@";
-		actorData.color = Color::Cyan;
-		actorData.sortingOrder = 15;
+	//{
+	//	Actor::ActorData actorData;
+	//	actorData.image = "@";
+	//	actorData.color = Color::Cyan;
+	//	actorData.sortingOrder = 15;
 
-		actorData.position = Vector2<float>(0.0f, 0.0f);
-		std::unique_ptr<SystemCore> systemCore = systemCorePool->Acquire();
-		systemCore->As<Actor>()->Initialize(actorData);
-		AddNewActor(std::move(systemCore));
-
-		actorData.position = Vector2<float>(0.0f, static_cast<float>(gridSize.y - 1));
-		systemCore = systemCorePool->Acquire();
-		systemCore->As<Actor>()->Initialize(actorData);
-		AddNewActor(std::move(systemCore));
-
-		actorData.position = Vector2<float>(static_cast<float>(gridSize.x - 1), 0.0f);
-		systemCore = systemCorePool->Acquire();
-		systemCore->As<Actor>()->Initialize(actorData);
-		AddNewActor(std::move(systemCore));
-
-		actorData.position = Vector2<float>(static_cast<float>(gridSize.x - 1), static_cast<float>(gridSize.y - 1));
-		systemCore = systemCorePool->Acquire();
-		systemCore->As<Actor>()->Initialize(actorData);
-		AddNewActor(std::move(systemCore));
-	}
+	//	actorData.position = Vector2<float>(0.0f, 0.0f);
+	//	std::unique_ptr<SystemCore> systemCore = systemCorePool->Acquire();
+	//	systemCore->As<Actor>()->Initialize(actorData);
+	//	AddNewActor(std::move(systemCore));
+	//}
 
 	// Spawn Segfault
-	{
-		std::unique_ptr<Enemy> enemy = segfaultPool->Acquire();
+	//{
+	//	std::unique_ptr<Enemy> enemy = segfaultPool->Acquire();
 
-		const int typeIdx = static_cast<int>(EnemyType::Segfault);
-		Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
-		actorData.position = { 130.0f, 130.0f };
-		enemy->As<Actor>()->Initialize(actorData);
-		enemy->Initialize(enemyInitEnemyData[typeIdx]);
+	//	const int typeIdx = static_cast<int>(EnemyType::Segfault);
+	//	Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
+	//	actorData.position = { 130.0f, 130.0f };
+	//	enemy->As<Actor>()->Initialize(actorData);
+	//	enemy->Initialize(enemyInitEnemyData[typeIdx]);
 
-		segfault = enemy->As<Segfault>();
+	//	segfault = enemy->As<Segfault>();
 
-		AddNewActor(std::move(enemy));
-	}
-
-	dangerGrid.assign(gridSize.y, std::vector<int>(gridSize.x, 0));
-	wallGrid.assign(gridSize.y, std::vector<bool>(gridSize.x, false));
+	//	AddNewActor(std::move(enemy));
+	//}
 }
 
 void GameLevel::Tick(float deltaTime)
@@ -141,6 +126,14 @@ void GameLevel::Tick(float deltaTime)
 	{
 		segfault->UpdatePath(Vector2<int>(Input::Instance().MouseWorldPosition()), wallGrid, dangerGrid);
 
+		return;
+	}
+
+	if (Input::Instance().GetKeyDown('Q') && lastTower)
+	{
+		quadTree->Remove(lastTower);
+		lastTower->Destroy();
+		lastTower = nullptr;
 		return;
 	}
 
@@ -161,6 +154,12 @@ void GameLevel::Draw()
 
 bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos)
 {
+	Vector2<int> screenPos;
+	if (!Renderer::Instance().TransformWorldToScreen(groundPos, screenPos))
+	{
+		return false;
+	}
+
 	const int typeIdx = static_cast<int>(type);
 	const Vector2<int> pos{ groundPos };
 
@@ -188,6 +187,7 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	}
 
 	Actor* towerActor = tower->As<Actor>();
+	lastTower = towerActor;
 
 	Actor::ActorData actorData{ towerInitActorData[typeIdx] };
 	actorData.position = groundPos;
@@ -234,19 +234,32 @@ void GameLevel::DrawHUD()
 	sprintf_s(bufferStime, "%02d:%02d", static_cast<int>(survivalTime / 60), static_cast<int>(survivalTime) % 60);
 	Renderer::Instance().Submit(bufferStime, Vector2<int>(1, 2), Color::Gray);
 
+	// Build
+	TowerType selectedTowerTypeToBuild = playerController->GetSelectedTowerTypeToBuild();
+	Renderer::Instance().Submit("Build: ", Vector2<int>(1, 4), Color::Gray);
+	Renderer::Instance().Submit("[1]Compiler", Vector2<int>(8, 4), (selectedTowerTypeToBuild == TowerType::CompilerTurret ? Color::Green : Color::Gray));
+	Renderer::Instance().Submit("[2]Debugger", Vector2<int>(20, 4), (selectedTowerTypeToBuild == TowerType::DebuggerNode ? Color::Green : Color::Gray));
+	Renderer::Instance().Submit("[3]GC", Vector2<int>(32, 4), (selectedTowerTypeToBuild == TowerType::GarbageCollector ? Color::Green : Color::Gray));
+	Renderer::Instance().Submit("[4]Mutex", Vector2<int>(38, 4), (selectedTowerTypeToBuild == TowerType::MutexBarrier ? Color::Green : Color::Gray));
+	Renderer::Instance().Submit("[5]Except", Vector2<int>(47, 4), (selectedTowerTypeToBuild == TowerType::ExceptionHandler ? Color::Green : Color::Gray));
+	Renderer::Instance().Submit("[R]Cancel", Vector2<int>(57, 4), Color::Gray);
+
+	// Other
+	Renderer::Instance().Submit("Action: [Space]JumpToSystemCore", Vector2<int>(1, 5), Color::Gray);
+
 	// camPos
 	const Vector2<int> viewTransform = Renderer::Instance().GetViewTransform() * -1;
 	sprintf_s(bufferCamPos, "Cam:(%d, %d)", viewTransform.x, viewTransform.y);
-	Renderer::Instance().Submit(bufferCamPos, Vector2<int>(1, 4), Color::Gray);
+	Renderer::Instance().Submit(bufferCamPos, Vector2<int>(1, 7), Color::Gray);
 
 	// mousePos
 	const Vector2<int> mousePosition{ Input::Instance().MouseWorldPosition() };
-	sprintf_s(bufferMousePos, "Mouse:(%d, %d)", mousePosition.x, mousePosition.y);
-	Renderer::Instance().Submit(bufferMousePos, Vector2<int>(1, 5), Color::Gray);
+	sprintf_s(bufferMousePos, "Cursor:(%d, %d)", mousePosition.x, mousePosition.y);
+	Renderer::Instance().Submit(bufferMousePos, Vector2<int>(1, 8), Color::Gray);
 
 	// fps
 	sprintf_s(bufferFPS, "FPS:%d", static_cast<int>(1.0f / lastDeltaTime));
-	Renderer::Instance().Submit(bufferFPS, Vector2<int>(1, 8), Color::DarkGray);
+	Renderer::Instance().Submit(bufferFPS, Vector2<int>(1, 9), Color::DarkGray);
 
 	DrawBorderLine();
 }

@@ -9,6 +9,7 @@ public:
 
 public:
 	void Insert(Actor* actor);
+	void Remove(Actor* actor);
 	std::vector<Actor*> Query(const Bounds& bounds);
 
 public:

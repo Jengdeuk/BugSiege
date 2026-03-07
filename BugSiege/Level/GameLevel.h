@@ -10,19 +10,24 @@
 
 namespace JD
 {
+	class Actor;
 	template <typename T>
 	class ObjectPool;
 }
 
 using namespace JD;
 
+class PlayerController;
+
 class QuadTree;
+
 class SystemCore;
 class CompilerTurret;
 class DebuggerNode;
 class GarbageCollector;
 class MutexBarrier;
 class ExceptionHandler;
+
 class Segfault;
 
 class GameLevel : public Level
@@ -50,10 +55,10 @@ private:
 
 private:
 	Vector2<int> mapSize;
-
-private:
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
+	Actor* lastTower = nullptr;
+	PlayerController* playerController = nullptr;
 
 // Navigation
 private:
