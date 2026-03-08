@@ -8,6 +8,6 @@ class DebuggerNode : public Tower
 {
 	RTTI_DECLARATIONS(DebuggerNode, Tower)
 
-public:
-
+private:
+	virtual void UpdateDangerGrid() override;
 };

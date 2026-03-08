@@ -4,6 +4,7 @@
 
 #include "Math/Color.h"
 #include "Math/Vector2.h"
+#include "Util/Timer.h"
 
 #include <memory>
 
@@ -22,8 +23,22 @@ namespace JD
 		{
 			const char* image = nullptr;
 			Vector2<float> position;
-			Color color = Color::Gray;
+			WORD color = Color::Gray;
 			int sortingOrder = 0;
+		};
+
+		struct AnimFrame
+		{
+			float playTime = 0.0f;
+			const char* image = nullptr;
+			WORD color = Color::Gray;
+			bool isChangeColorOnly = false;
+		};
+
+		struct AnimSequence
+		{
+			const AnimFrame* seq = nullptr;
+			int size = 0;
 		};
 
 		struct CollisionFilter
@@ -32,11 +47,6 @@ namespace JD
 			unsigned int mask = 0;
 		};
 
-		inline bool ShouldCollide(const CollisionFilter& a, const CollisionFilter& b)
-		{
-			return (a.mask & b.layer) && (b.mask & a.layer);
-		}
-
 	public:
 		void Initialize(const ActorData& initData);
 		virtual void BeginPlay();
@@ -44,11 +54,18 @@ namespace JD
 		virtual void Draw();
 
 	public:
-		virtual void TransformUpdate(float deltaTime);
+		inline bool ShouldCollide(Actor* other)
+		{
+			return (collisionFilter.mask & other->collisionFilter.layer) && (other->collisionFilter.mask & collisionFilter.layer);
+		}
 
 	public:
 		bool TransformWorldToScreen(Vector2<int>& outScreenPos);
 		bool TransformWorldToScreen(const Vector2<float>& worldPosf, Vector2<int>& outScreenPos);
+
+	public:
+		void PlayAnimation(const AnimSequence& animSequence);
+		void JumpAnimFrame(const int idx);
 
 	public:
 		void Destroy();
@@ -75,9 +92,13 @@ namespace JD
 		inline void SetPosition(const Vector2<float>& newPosition) { position = newPosition; }
 		inline const Vector2<float>& GetPosition() const { return position; }
 
-		void SetImage(const char* newImage);
-		void SetImage(std::unique_ptr<char[]> newImage);
-		inline void SetColor(const Color newColor) { color = newColor; }
+		inline const AnimSequence& GetAnimSequence() const { return animSequence; }
+
+		inline void SetImage(const char* newImage) { image = newImage; }
+		inline void SetColor(const WORD newColor) { color = newColor; }
+
+	private:
+		void TickAnim(float deltaTime);
 
 	private:
 		ActorData actorData;
@@ -91,9 +112,14 @@ namespace JD
 		QuadNode* ownerQuadNode = nullptr;
 
 	private:
-		std::unique_ptr<char[]> image = nullptr;
+		AnimSequence animSequence;
+		Timer animTimer;
+		int curAnimIdx = 0;
+
+	private:
+		const char* image = nullptr;
 		Vector2<float> position{};
-		Color color = Color::White;
+		WORD color = Color::White;
 		int sortingOrder = 0;
 	};
 }

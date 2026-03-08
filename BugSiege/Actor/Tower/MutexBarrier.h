@@ -8,6 +8,6 @@ class MutexBarrier : public Tower
 {
 	RTTI_DECLARATIONS(MutexBarrier, Tower)
 
-public:
-
+private:
+	virtual void UpdateDangerGrid() override;
 };

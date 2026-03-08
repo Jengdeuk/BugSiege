@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Actor/Actor.h"
+#include "Actor/Tower/Tower.h"
 
 using namespace JD;
 
-class SystemCore : public Actor
+class SystemCore : public Tower
 {
-	RTTI_DECLARATIONS(SystemCore, Actor)
+	RTTI_DECLARATIONS(SystemCore, Tower)
 
+private:
+	virtual void UpdateDangerGrid() override;
 };

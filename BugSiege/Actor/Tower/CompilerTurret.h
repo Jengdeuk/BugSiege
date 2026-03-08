@@ -8,6 +8,6 @@ class CompilerTurret : public Tower
 {
 	RTTI_DECLARATIONS(CompilerTurret, Tower)
 
-public:
-
+private:
+	virtual void UpdateDangerGrid() override;
 };

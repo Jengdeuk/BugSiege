@@ -2,6 +2,7 @@
 
 enum class TowerType
 {
+	SystemCore,
 	CompilerTurret,
 	DebuggerNode,
 	GarbageCollector,

@@ -8,6 +8,6 @@ class ExceptionHandler : public Tower
 {
 	RTTI_DECLARATIONS(ExceptionHandler, Tower)
 
-public:
-
+private:
+	virtual void UpdateDangerGrid() override;
 };

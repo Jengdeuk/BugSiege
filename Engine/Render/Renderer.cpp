@@ -122,11 +122,6 @@ namespace JD
 		renderQueue.clear();
 	}
 
-	void Renderer::Submit(const char* text, const Vector2<int>& position, Color color, int sortingOrder)
-	{
-		renderQueue.emplace_back(RenderCommand{ text, position, static_cast<WORD>(color), sortingOrder });
-	}
-
 	void Renderer::Submit(const char* text, const Vector2<int>& position, WORD color, int sortingOrder)
 	{
 		renderQueue.emplace_back(RenderCommand{ text, position, color, sortingOrder });

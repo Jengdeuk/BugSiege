@@ -7,9 +7,9 @@
 #include "Level/GameLevel.h"
 #include "Actor/Tower/Tower.h"
 
-static const char* imgs[5] =
+static const char* imgs[] =
 {
-	"C", "D", "G", "M", "E"
+	"@","C", "D", "G", "M", "E"
 };
 
 void PlayerController::BeginPlay()
@@ -21,7 +21,6 @@ void PlayerController::BeginPlay()
 
 void PlayerController::Tick(float deltaTime)
 {
-	Super::Tick(deltaTime);
 	ProcessInput(deltaTime);
 }
 
@@ -40,7 +39,7 @@ void PlayerController::Draw()
 	}
 
 	const int typeIdx = static_cast<int>(selectedTowerTypeToBuild);
-	Renderer::Instance().Submit(imgs[typeIdx], mousePos, WORD(Color::Green) | WORD(Color::DarkBlue) << 4, 15);
+	Renderer::Instance().Submit(imgs[typeIdx], mousePos, Color::Green | Color::DarkBlue << 4, 15);
 
 	const int cx = mousePos.x;
 	const int cy = mousePos.y;

@@ -8,6 +8,6 @@ class GarbageCollector : public Tower
 {
 	RTTI_DECLARATIONS(GarbageCollector, Tower)
 
-public:
-
+private:
+	virtual void UpdateDangerGrid() override;
 };

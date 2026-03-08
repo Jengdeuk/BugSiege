@@ -4,7 +4,7 @@
 
 namespace JD
 {
-	enum class JD_API Color : unsigned short
+	enum JD_API Color : unsigned short
 	{
 		Black = 0,
 		DarkBlue = 1,

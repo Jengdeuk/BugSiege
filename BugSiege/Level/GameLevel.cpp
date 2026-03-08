@@ -6,6 +6,7 @@
 #include "Util/Util.h"
 
 #include "Game/Game.h"
+#include "Physics/PhysicsManager.h"
 #include "Partition/QuadTree.h"
 
 #include "Actor/ObjectPool.h"
@@ -24,8 +25,38 @@
 
 using namespace JD;
 
+static const Actor::AnimFrame buildAnimSeqTower[] =
+{
+	{ 0.25f, "_", Color::Green, false },
+	{ 0.25f, "=", Color::Green, false },
+	{ 0.25f, " ", Color::Green << 4, false }
+};
+
+static const Actor::AnimFrame collapsedAnimSeqTower[] =
+{
+	{ 0.06f, "*", Color::Green, false },
+	{ 0.06f, "*", Color::White, false },
+	{ 0.06f, "*", Color::Green, false },
+	{ 0.06f, "*", Color::White, false },
+	{ 0.06f, " ", Color::Green << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Green << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Green << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Green << 4, false }
+};
+
+static const Actor::AnimFrame buildAnimSeqSystemCore[] =
+{
+	{ 0.25f, "_", Color::Cyan, false },
+	{ 0.25f, "=", Color::Cyan, false },
+	{ 0.25f, " ", Color::Cyan << 4, false }
+};
+
 static const Actor::ActorData towerInitActorData[static_cast<int>(TowerType::Count)] =
 {
+	{ "@", {}, Color::Cyan, 11 },
 	{ "C", {}, Color::Green, 11 },
 	{ "D", {}, Color::Green, 11 },
 	{ "G", {}, Color::Green, 11 },
@@ -35,11 +66,42 @@ static const Actor::ActorData towerInitActorData[static_cast<int>(TowerType::Cou
 
 static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Count)] =
 {
-	{ 1, 1, 4.0f, 0.25f },
-	{ 2, 1, 6.0f, 0.25f },
-	{ 3, 3, 3.0f, 3.0f },
-	{ 4, 1, 5.0f, 5.0f },
-	{ 5, 1, 4.0f, 1.0f }
+	{ 0, 0, 0, 0.0f, 0.0f, { buildAnimSeqSystemCore, _countof(buildAnimSeqSystemCore) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
+	{ 1, 1, 1, 4.0f, 0.25f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
+	{ 2, 1, 1, 6.0f, 0.25f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
+	{ 3, 1, 3, 3.0f, 3.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
+	{ 4, 1, 1, 5.0f, 5.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
+	{ 5, 1, 1, 4.0f, 1.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } }
+};
+
+static const Actor::AnimFrame occurAnimSeqEnmey[] =
+{
+	{ 0.06f, "*", Color::Red, false },
+	{ 0.06f, "*", Color::White, false },
+	{ 0.06f, "*", Color::Red, false },
+	{ 0.06f, "*", Color::White, false },
+	{ 0.06f, " ", Color::Red << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Red << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Red << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Red << 4, false }
+};
+
+static const Actor::AnimFrame occurAnimSeqSegfault[] =
+{
+	{ 0.06f, "*", Color::Magenta, false },
+	{ 0.06f, "*", Color::White, false },
+	{ 0.06f, "*", Color::Magenta, false },
+	{ 0.06f, "*", Color::White, false },
+	{ 0.06f, " ", Color::Magenta << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Magenta << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Magenta << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Magenta << 4, false }
 };
 
 static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Count)] =
@@ -57,7 +119,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	{  },
 	{  },
 	{  },
-	{ 1, 0.5f, 1 }
+	{ 5, 1, 1, 2.1f, 1.0f, 3.5f, { occurAnimSeqSegfault, _countof(occurAnimSeqSegfault) }}
 };
 
 GameLevel::GameLevel(const Vector2<int>& mapSize)
@@ -84,34 +146,6 @@ void GameLevel::Initialize()
 	mutexBarrierPool = std::make_unique<ObjectPool<MutexBarrier>>();
 	exceptionHandlerPool = std::make_unique<ObjectPool<ExceptionHandler>>();
 	segfaultPool = std::make_unique<ObjectPool<Segfault>>();
-
-	// Spawn SystemCore
-	//{
-	//	Actor::ActorData actorData;
-	//	actorData.image = "@";
-	//	actorData.color = Color::Cyan;
-	//	actorData.sortingOrder = 15;
-
-	//	actorData.position = Vector2<float>(0.0f, 0.0f);
-	//	std::unique_ptr<SystemCore> systemCore = systemCorePool->Acquire();
-	//	systemCore->As<Actor>()->Initialize(actorData);
-	//	AddNewActor(std::move(systemCore));
-	//}
-
-	// Spawn Segfault
-	//{
-	//	std::unique_ptr<Enemy> enemy = segfaultPool->Acquire();
-
-	//	const int typeIdx = static_cast<int>(EnemyType::Segfault);
-	//	Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
-	//	actorData.position = { 130.0f, 130.0f };
-	//	enemy->As<Actor>()->Initialize(actorData);
-	//	enemy->Initialize(enemyInitEnemyData[typeIdx]);
-
-	//	segfault = enemy->As<Segfault>();
-
-	//	AddNewActor(std::move(enemy));
-	//}
 }
 
 void GameLevel::Tick(float deltaTime)
@@ -124,23 +158,24 @@ void GameLevel::Tick(float deltaTime)
 
 	if (Input::Instance().GetMouseButtonDown(1))
 	{
-		segfault->UpdatePath(Vector2<int>(Input::Instance().MouseWorldPosition()), wallGrid, dangerGrid);
-
+		// Spawn Segfault
+		{
+			const int typeIdx = static_cast<int>(EnemyType::Segfault);
+			std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+			Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
+			actorData.position = Input::Instance().MouseWorldPosition();
+			newEnemy->As<Actor>()->Initialize(actorData);
+			newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
+			AddNewActor(std::move(newEnemy));
+		}
 		return;
 	}
-
-	if (Input::Instance().GetKeyDown('Q') && lastTower)
-	{
-		quadTree->Remove(lastTower);
-		lastTower->Destroy();
-		lastTower = nullptr;
-		return;
-	}
-
-	Super::Tick(deltaTime);
 
 	survivalTime += deltaTime;
 	lastDeltaTime = deltaTime;
+
+	Super::Tick(deltaTime);
+	PhysicsManager::Instance().UpdatePhysics(Super::GetActors(), deltaTime);
 }
 
 void GameLevel::Draw()
@@ -187,8 +222,6 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	}
 
 	Actor* towerActor = tower->As<Actor>();
-	lastTower = towerActor;
-
 	Actor::ActorData actorData{ towerInitActorData[typeIdx] };
 	actorData.position = groundPos;
 	towerActor->Initialize(actorData);
@@ -196,9 +229,19 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	AddNewActor(std::move(tower));
 
 	// Update DangerGrid for Navigation
+	UpdateDangerGrid(type, pos, 1);
+
+	// Insert Tower to QuadTree
+	quadTree->Insert(towerActor);
+
+	return true;
+}
+
+void GameLevel::UpdateDangerGrid(const TowerType& type, const Vector2<int>& pos, const int value)
+{
 	wallGrid[pos.y][pos.x] = true;
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
-	const int r = static_cast<int>(towerInitTowerData[typeIdx].radius);
+	const int r = static_cast<int>(towerInitTowerData[static_cast<int>(type)].radius);
 	for (int y = pos.y - r; y <= pos.y + r; ++y)
 	{
 		for (int x = pos.x - r; x <= pos.x + r; ++x)
@@ -212,15 +255,20 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 			int dy = y - pos.y;
 			if (dx * dx + dy * dy <= r * r)
 			{
-				++dangerGrid[y][x];
+				dangerGrid[y][x] += value;
 			}
 		}
 	}
+}
 
-	// Insert Tower to QuadTree
-	quadTree->Insert(towerActor);
+std::vector<Actor*> GameLevel::QueryActorsInRange(const Bounds& bounds)
+{
+	return quadTree->Query(bounds);
+}
 
-	return true;
+void GameLevel::RemoveActorInQuadTree(Actor* actor)
+{
+	quadTree->Remove(actor);
 }
 
 const Tower::TowerData& GameLevel::GetTowerInitData(const TowerType& type) const

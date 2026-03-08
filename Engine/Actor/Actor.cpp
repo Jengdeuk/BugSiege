@@ -8,33 +8,31 @@ namespace JD
 {
 	void Actor::Initialize(const ActorData& initData)
 	{
-		hasBeganPlay = false;
-
 		actorData = initData;
-		position = initData.position;
-		color = initData.color;
-		sortingOrder = initData.sortingOrder;
-		if (actorData.image)
-		{
-			size_t length = strlen(actorData.image) + 1;
-			this->image = std::make_unique<char[]>(length);
-			std::memcpy(this->image.get(), actorData.image, length);
-		}
+
+		hasBeganPlay = false;
+		destroyRequested = false;
+
+		image = actorData.image;
+		position = actorData.position;
+		color = actorData.color;
+		sortingOrder = actorData.sortingOrder;
 	}
 
 	void Actor::BeginPlay()
 	{
 		hasBeganPlay = true;
-		destroyRequested = false;
+		animSequence = {};
 	}
 
 	void Actor::Tick(float deltaTime)
 	{
+		TickAnim(deltaTime);
 	}
 
 	void Actor::Draw()
 	{
-		if (destroyRequested || !image.get())
+		if (destroyRequested || !image)
 		{
 			return;
 		}
@@ -45,11 +43,7 @@ namespace JD
 			return;
 		}
 
-		Renderer::Instance().Submit(image.get(), screenPos, color, sortingOrder);
-	}
-
-	void Actor::TransformUpdate(float deltaTime)
-	{
+		Renderer::Instance().Submit(image, screenPos, color, sortingOrder);
 	}
 
 	bool Actor::TransformWorldToScreen(Vector2<int>& outScreenPos)
@@ -106,20 +100,50 @@ namespace JD
 		return true;
 	}
 
+	void Actor::PlayAnimation(const AnimSequence& animSequence)
+	{
+		this->animSequence = animSequence;
+		curAnimIdx = 0;
+		JumpAnimFrame(curAnimIdx);
+	}
+
+	void Actor::JumpAnimFrame(const int idx)
+	{
+		animTimer.Reset();
+		animTimer.SetTargetTime(animSequence.seq[idx].playTime);
+		if (!animSequence.seq[idx].isChangeColorOnly)
+		{
+			SetImage(animSequence.seq[idx].image);
+		}
+		SetColor(animSequence.seq[idx].color);
+	}
+
 	void Actor::Destroy()
 	{
 		destroyRequested = true;
 	}
 
-	void Actor::SetImage(const char* newImage)
+	void Actor::TickAnim(float deltaTime)
 	{
-		size_t length = strlen(newImage) + 1;
-		image = std::make_unique<char[]>(length);
-		std::memcpy(image.get(), newImage, length);
-	}
+		if (!animSequence.seq)
+		{
+			return;
+		}
 
-	void Actor::SetImage(std::unique_ptr<char[]> newImage)
-	{
-		image = std::move(newImage);
+		animTimer.Tick(deltaTime);
+		if (!animTimer.IsTimeOut())
+		{
+			return;
+		}
+
+		if (curAnimIdx == animSequence.size - 1)
+		{
+			animSequence.seq = nullptr;
+			SetImage(actorData.image);
+			SetColor(actorData.color);
+			return;
+		}
+
+		JumpAnimFrame(++curAnimIdx);
 	}
 }

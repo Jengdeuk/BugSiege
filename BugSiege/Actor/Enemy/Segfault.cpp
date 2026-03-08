@@ -3,6 +3,13 @@
 #include "Render/Renderer.h"
 #include "Navigation/AStar.h"
 
+#include "Level/GameLevel.h"
+#include "Partition/QuadNode.h"
+#include "Actor/Tower/Tower.h"
+
+static const int radius = 15;
+static const int l = 2 * radius;
+
 Segfault::Segfault()
 	: navigation(std::make_unique<AStar>())
 {
@@ -23,7 +30,130 @@ void Segfault::Draw()
 	}
 }
 
+void Segfault::SearchTarget()
+{
+	const int x = static_cast<int>(round(GetPosition().x));
+	const int y = static_cast<int>(round(GetPosition().y));
+	std::vector<Actor*> actors = GetOwner()->As<GameLevel>()->QueryActorsInRange(Bounds{ x - radius, y - radius, l, l });
+
+	target = nullptr;
+	int tTier = 0;
+	float tDist = 12345678.9f;
+	for (Actor* const actor : actors)
+	{
+		Tower* tower = actor->As<Tower>();
+		if (!tower->HasBuilt() || tower->HasCollapsed())
+		{
+			continue;
+		}
+
+		int tier = tower->GetTowerData().tier;
+		float dist = LengthSq(actor->GetPosition() - GetPosition());
+		if ((tier > tTier) || (tier == tTier && dist < tDist))
+		{
+			target = tower;
+			tTier = tier;
+			tDist = dist;
+		}
+	}
+}
+
 void Segfault::UpdatePath(const Vector2<int>& goalPos, const std::vector<std::vector<bool>>& wallGrid, const std::vector<std::vector<int>>& dangerGrid)
 {
 	path = navigation->FindPath(Vector2<int>(GetPosition()), goalPos, wallGrid, dangerGrid);
+}
+
+void Segfault::TickSearch(float deltaTime)
+{
+	SearchTarget();
+	if (!IsTargetValid())
+	{
+		return;
+	}
+
+	GameLevel* level = GetOwner()->As<GameLevel>();
+	path = navigation->FindPath(Vector2<int>(GetPosition()), Vector2<int>(target->GetPosition()), level->GetWallGrid(), level->GetDangerGrid());
+	ChangeState(State::Trace);
+}
+
+void Segfault::TickTrace(float deltaTime)
+{
+	// search target
+	if (!IsTargetValid())
+	{
+		path.clear();
+		ChangeState(State::Search);
+		return;
+	}
+
+	// attack target
+	if (CanAttack())
+	{
+		path.clear();
+		ChangeState(State::Attack);
+		return;
+	}
+	
+	// search target
+	if (HasArrived())
+	{
+		path.clear();
+		ChangeState(State::Search);
+		return;
+	}
+
+	const Vector2<float> pos{ GetPosition() };
+	Vector2<float> nxtDst{ path.back() };
+	if (round(pos.x) == nxtDst.x && round(pos.y) == nxtDst.y)
+	{
+		path.pop_back();
+		if (path.size() <= 1)
+		{
+			return;
+		}
+
+		nxtDst = Vector2<float>(path.back());
+	}
+
+	const Vector2<float> dir{ (nxtDst - pos).Normalized() };
+	SetPosition(pos + dir * GetEnemyData().speed * deltaTime);
+}
+
+void Segfault::TickAttack(float deltaTime)
+{
+	// search target
+	if (!IsTargetValid())
+	{
+		ChangeState(State::Search);
+		return;
+	}
+
+	// trace target
+	if (!CanAttack())
+	{
+		ChangeState(State::Trace);
+		return;
+	}
+
+	Super::TickAttack(deltaTime);
+}
+
+void Segfault::Attack()
+{
+	target->Damaged(GetEnemyData().damage);
+}
+
+bool Segfault::IsTargetValid()
+{
+	return target && !target->DestroyRequested() && !target->HasCollapsed();
+}
+
+bool Segfault::HasArrived()
+{
+	return path.size() <= 1;
+}
+
+bool Segfault::CanAttack()
+{
+	return sqrt(LengthSq(target->GetPosition() - GetPosition())) <= GetEnemyData().radius;
 }

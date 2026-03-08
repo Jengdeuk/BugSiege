@@ -19,6 +19,7 @@ using namespace JD;
 
 class PlayerController;
 
+struct Bounds;
 class QuadTree;
 
 class SystemCore;
@@ -44,10 +45,15 @@ public:
 
 public:
 	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos);
+	void UpdateDangerGrid(const TowerType& type, const Vector2<int>& pos, const int value = 1);
+	std::vector<Actor*> QueryActorsInRange(const Bounds& bounds);
+	void RemoveActorInQuadTree(Actor* actor);
 
 public:
 	inline const Vector2<int>& GetMapSize() const { return mapSize; }
 	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
+	inline const std::vector<std::vector<int>>& GetDangerGrid() const { return dangerGrid; }
+	inline const std::vector<std::vector<bool>>& GetWallGrid() const { return wallGrid; }
 
 private:
 	void DrawHUD();
@@ -57,12 +63,10 @@ private:
 	Vector2<int> mapSize;
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
-	Actor* lastTower = nullptr;
 	PlayerController* playerController = nullptr;
 
 // Navigation
 private:
-	Segfault* segfault = nullptr;
 	std::vector<std::vector<int>> dangerGrid;
 	std::vector<std::vector<bool>> wallGrid;
 

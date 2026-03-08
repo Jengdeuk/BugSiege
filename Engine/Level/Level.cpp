@@ -33,18 +33,6 @@ namespace JD
 		}
 	}
 
-	void Level::PhysicsUpdate(float deltaTime)
-	{
-	}
-
-	void Level::TransformUpdate(float deltaTime)
-	{
-		for (std::unique_ptr<Actor>& actor : actors)
-		{
-			actor->TransformUpdate(deltaTime);
-		}
-	}
-
 	void Level::AddNewActor(std::unique_ptr<Actor>&& newActor)
 	{
 		addRequestedActors.emplace_back(std::move(newActor));

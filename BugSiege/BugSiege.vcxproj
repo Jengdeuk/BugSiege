@@ -117,6 +117,7 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Navigation\AStar.cpp" />
     <ClCompile Include="Partition\QuadNode.cpp" />
     <ClCompile Include="Partition\QuadTree.cpp" />
+    <ClCompile Include="Physics\PhysicsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\Enemy\Enemy.h" />
@@ -136,6 +137,8 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClInclude Include="Navigation\AStar.h" />
     <ClInclude Include="Partition\QuadNode.h" />
     <ClInclude Include="Partition\QuadTree.h" />
+    <ClInclude Include="Physics\Collision.h" />
+    <ClInclude Include="Physics\PhysicsManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
