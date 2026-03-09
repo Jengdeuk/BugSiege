@@ -16,6 +16,8 @@ class Tower : public Actor
 		float radius = 0.0f;
 		float reloadTime = 0.0f;
 		Actor::AnimSequence buildAnimSeq;
+		Actor::AnimSequence attackAnimSeq;
+		Actor::AnimSequence damagedAnimSeq;
 		Actor::AnimSequence collapsedAnimSeq;
 	};
 

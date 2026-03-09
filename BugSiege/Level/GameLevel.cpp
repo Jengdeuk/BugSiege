@@ -26,101 +26,220 @@
 
 using namespace JD;
 
-static const Actor::AnimFrame buildAnimSeqTower[] =
+#define ANIMSEQ(seq) { seq, _countof(seq) }
+
+static const Actor::AnimFrame damagedAnimSeqRGB[] =
 {
-	{ 0.25f, "_", Color::Green, false },
-	{ 0.25f, "=", Color::Green, false },
-	{ 0.25f, " ", Color::Green << 4, false }
+	{ 0.06f, {}, Color::Red, {} },
+	{ 0.06f, {}, Color::White, {} },
+	{ 0.06f, {}, Color::Green, {} },
+	{ 0.06f, {}, Color::White, {} },
+	{ 0.06f, {}, Color::Blue, {} },
+	{ 0.06f, {}, Color::White, {} },
+	{ 0.06f, {}, Color::Red, {} },
+	{ 0.06f, {}, Color::White, {} },
+	{ 0.06f, {}, Color::Green, {} },
+	{ 0.06f, {}, Color::White, {} },
+	{ 0.06f, {}, Color::Blue, {} }
 };
 
-static const Actor::AnimFrame collapsedAnimSeqTower[] =
+static const Actor::AnimFrame buildAnimSeqTower[] =
 {
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, "*", Color::Green, false },
-	{ 0.06f, "*", Color::White, false },
-	{ 0.06f, "*", Color::Green, false },
-	{ 0.06f, "*", Color::White, false }
+	{ 0.25f, "_", Color::Green, Color::Black },
+	{ 0.25f, "=", Color::Green, Color::Black },
+	{ 0.25f, " ", Color::Black, Color::Green }
 };
 
 static const Actor::AnimFrame buildAnimSeqSystemCore[] =
 {
-	{ 0.25f, "_", Color::Cyan, false },
-	{ 0.25f, "=", Color::Cyan, false },
-	{ 0.25f, " ", Color::Cyan << 4, false }
+	{ 0.25f, "_", Color::Cyan, Color::Black },
+	{ 0.25f, "=", Color::Cyan, Color::Black },
+	{ 0.25f, " ", Color::Black, Color::Cyan }
+};
+
+static const Actor::AnimFrame attackAnimSeqTower[] =
+{
+	{ 0.1f, {}, {}, Color::DarkBlue }
+};
+
+static const Actor::AnimFrame collapsedAnimSeqTower[] =
+{
+	{ 0.06f, " ", Color::Black, Color::Green },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Green },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Green },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Green },
+	{ 0.06f, "*", Color::Green, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, "*", Color::Green, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black }
 };
 
 static const Actor::ActorData towerInitActorData[static_cast<int>(TowerType::Count)] =
 {
-	{ "@", {}, Color::Cyan, 11 },
-	{ "C", {}, Color::Green, 11 },
-	{ "D", {}, Color::Green, 11 },
-	{ "G", {}, Color::Green, 11 },
-	{ "M", {}, Color::Green, 11 },
-	{ "E", {}, Color::Green, 11 }
+	{ "@", {}, Color::Cyan, Color::Black, 11 },
+	{ "C", {}, Color::Green, Color::Black, 11 },
+	{ "D", {}, Color::Green, Color::Black, 11 },
+	{ "G", {}, Color::Green, Color::Black, 11 },
+	{ "M", {}, Color::Green, Color::Black, 11 },
+	{ "E", {}, Color::Green, Color::Black, 11 }
 };
 
 static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Count)] =
 {
-	{ 0, 0, 0, 0.0f, 0.0f, { buildAnimSeqSystemCore, _countof(buildAnimSeqSystemCore) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
-	{ 1, 1, 1, 4.0f, 0.25f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
-	{ 2, 1, 1, 6.0f, 0.25f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
-	{ 3, 1, 3, 3.0f, 3.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
-	{ 4, 1, 1, 5.0f, 5.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } },
-	{ 5, 1, 1, 4.0f, 1.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } }
+	{
+		0, 0, 0, 0.0f, 0.0f,
+		ANIMSEQ(buildAnimSeqSystemCore),
+		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(collapsedAnimSeqTower)
+	},
+	
+	{
+		1, 1, 1, 4.0f, 0.25f,
+		ANIMSEQ(buildAnimSeqTower),
+		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(collapsedAnimSeqTower)
+	},
+	
+	{
+		2, 2, 1, 6.0f, 0.25f,
+		ANIMSEQ(buildAnimSeqTower),
+		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(collapsedAnimSeqTower)
+	},
+	
+	{
+		3, 3, 3, 3.0f, 3.0f,
+		ANIMSEQ(buildAnimSeqTower),
+		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(collapsedAnimSeqTower)
+	},
+	
+	{
+		4, 4, 1, 5.0f, 5.0f,
+		ANIMSEQ(buildAnimSeqTower),
+		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(collapsedAnimSeqTower)
+	},
+	
+	{
+		5, 5, 1, 4.0f, 1.0f,
+		ANIMSEQ(buildAnimSeqTower),
+		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(collapsedAnimSeqTower)
+	}
 };
 
 static const Actor::AnimFrame occurAnimSeqEnemy[] =
 {
-	{ 0.06f, "*", Color::Red, false },
-	{ 0.06f, "*", Color::White, false },
-	{ 0.06f, "*", Color::Red, false },
-	{ 0.06f, "*", Color::White, false },
-	{ 0.06f, " ", Color::Red << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Red << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Red << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Red << 4, false }
+	{ 0.06f, "*", Color::Red, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, "*", Color::Red, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Red }
 };
 
 static const Actor::AnimFrame occurAnimSeqSegfault[] =
 {
-	{ 0.06f, "*", Color::Magenta, false },
-	{ 0.06f, "*", Color::White, false },
-	{ 0.06f, "*", Color::Magenta, false },
-	{ 0.06f, "*", Color::White, false },
-	{ 0.06f, " ", Color::Magenta << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Magenta << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Magenta << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Magenta << 4, false }
+	{ 0.06f, "*", Color::Magenta, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, "*", Color::Magenta, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Magenta }
+};
+
+static const Actor::AnimFrame attackAnimSeqEnemy[] =
+{
+	{ 0.1f, {}, {}, Color::DarkRed }
+};
+
+static const Actor::AnimFrame attackAnimSeqSegfault[] =
+{
+	{ 0.1f, {}, {}, Color::DarkMagenta }
+};
+
+static const Actor::AnimFrame fixedAnimSeqEnemy[] =
+{
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Red },
+	{ 0.06f, "*", Color::Red, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, "*", Color::Red, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black }
+};
+
+static const Actor::AnimFrame fixedAnimSeqSegfault[] =
+{
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, " ", Color::Black, Color::White },
+	{ 0.06f, " ", Color::Black, Color::Magenta },
+	{ 0.06f, "*", Color::Magenta, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black },
+	{ 0.06f, "*", Color::Magenta, Color::Black },
+	{ 0.06f, "*", Color::White, Color::Black }
 };
 
 static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Count)] =
 {
-	{ "B", {}, Color::Red, 5 },
+	{ "B", {}, Color::Red, Color::Black, 5 },
 	{  },
 	{  },
 	{  },
-	{ "S", {}, Color::Magenta, 9 }
+	{ "S", {}, Color::Magenta, Color::Black, 9 }
 };
 
 static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Count)] =
 {
-	{ 1, 1, 1, 1.1f, 1.0f, 5.0f, { occurAnimSeqEnemy, _countof(occurAnimSeqEnemy) } },
+	{
+		1, 1, 1, 1.1f, 1.0f, 5.0f,
+		ANIMSEQ(occurAnimSeqEnemy),
+		ANIMSEQ(attackAnimSeqEnemy),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(fixedAnimSeqEnemy)
+	},
+
 	{  },
+
 	{  },
+
 	{  },
-	{ 5, 1, 1, 2.1f, 1.0f, 3.5f, { occurAnimSeqSegfault, _countof(occurAnimSeqSegfault) }}
+
+	{
+		5, 1, 1, 2.1f, 1.0f, 3.5f,
+		ANIMSEQ(occurAnimSeqSegfault),
+		ANIMSEQ(attackAnimSeqSegfault),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(fixedAnimSeqSegfault)
+	}
 };
 
 GameLevel::GameLevel(const Vector2<int>& mapSize)
@@ -131,6 +250,11 @@ GameLevel::GameLevel(const Vector2<int>& mapSize)
 
 void GameLevel::Initialize()
 {
+	isGameOver = false;
+	integrity = 100;
+	survivalTime = 0.0f;
+	lastDeltaTime = 0.0f;
+
 	// Navigation & Partition
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
 	dangerGrid.assign(gridSize.y, std::vector<int>(gridSize.x, 0));
@@ -172,28 +296,33 @@ void GameLevel::Tick(float deltaTime)
 		return;
 	}
 
+	if (isGameOver)
+	{
+		return;
+	}
+
 	if (Input::Instance().GetMouseButtonDown(1))
 	{
 		// Spawn Bug
-		{
-			const int typeIdx = static_cast<int>(EnemyType::Bug);
-			std::unique_ptr<Enemy> newEnemy = bugPool->Acquire();
-			Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
-			actorData.position = Input::Instance().MouseWorldPosition();
-			newEnemy->As<Actor>()->Initialize(actorData);
-			newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
-			AddNewActor(std::move(newEnemy));
-		}
-		//// Spawn Segfault
 		//{
-		//	const int typeIdx = static_cast<int>(EnemyType::Segfault);
-		//	std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+		//	const int typeIdx = static_cast<int>(EnemyType::Bug);
+		//	std::unique_ptr<Enemy> newEnemy = bugPool->Acquire();
 		//	Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
 		//	actorData.position = Input::Instance().MouseWorldPosition();
 		//	newEnemy->As<Actor>()->Initialize(actorData);
 		//	newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
 		//	AddNewActor(std::move(newEnemy));
 		//}
+		// Spawn Segfault
+		{
+			const int typeIdx = static_cast<int>(EnemyType::Segfault);
+			std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+			Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
+			actorData.position = Input::Instance().MouseWorldPosition();
+			newEnemy->As<Actor>()->Initialize(actorData);
+			newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
+			AddNewActor(std::move(newEnemy));
+		}
 		return;
 	}
 
@@ -211,6 +340,16 @@ void GameLevel::Draw()
 	quadTree->Draw();
 
 	DrawHUD();
+}
+
+void GameLevel::DamagedSystemCore(const int damage)
+{
+	integrity -= damage;
+	if (integrity <= 0)
+	{
+		integrity = 0;
+		isGameOver = true;
+	}
 }
 
 bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand)
@@ -318,13 +457,19 @@ const Tower::TowerData& GameLevel::GetTowerInitData(const TowerType& type) const
 
 void GameLevel::DrawHUD()
 {
+	// integrity
+	Renderer::Instance().Submit("INTEGRITY: ", Vector2<int>(1, 2), Color::White);
+	sprintf_s(bufferIntegrity, "%d%%", integrity);
+	Renderer::Instance().Submit(bufferIntegrity, Vector2<int>(12, 2), Color::Cyan);
+
 	// time
+	Renderer::Instance().Submit("TIME: ", Vector2<int>(17, 2), Color::White);
 	sprintf_s(bufferStime, "%02d:%02d", static_cast<int>(survivalTime / 60), static_cast<int>(survivalTime) % 60);
-	Renderer::Instance().Submit(bufferStime, Vector2<int>(1, 2), Color::Gray);
+	Renderer::Instance().Submit(bufferStime, Vector2<int>(23, 2), Color::Gray);
 
 	// Build
 	TowerType selectedTowerTypeToBuild = playerController->GetSelectedTowerTypeToBuild();
-	Renderer::Instance().Submit("Build: ", Vector2<int>(1, 4), Color::Gray);
+	Renderer::Instance().Submit("Build: ", Vector2<int>(1, 4), Color::White);
 	Renderer::Instance().Submit("[1]Compiler", Vector2<int>(8, 4), (selectedTowerTypeToBuild == TowerType::CompilerTurret ? Color::Green : Color::Gray));
 	Renderer::Instance().Submit("[2]Debugger", Vector2<int>(20, 4), (selectedTowerTypeToBuild == TowerType::DebuggerNode ? Color::Green : Color::Gray));
 	Renderer::Instance().Submit("[3]GC", Vector2<int>(32, 4), (selectedTowerTypeToBuild == TowerType::GarbageCollector ? Color::Green : Color::Gray));
@@ -333,7 +478,8 @@ void GameLevel::DrawHUD()
 	Renderer::Instance().Submit("[R]Cancel", Vector2<int>(57, 4), Color::Gray);
 
 	// Other
-	Renderer::Instance().Submit("Action: [Space]JumpToSystemCore", Vector2<int>(1, 5), Color::Gray);
+	Renderer::Instance().Submit("Action: ", Vector2<int>(1, 5), Color::White);
+	Renderer::Instance().Submit("[Space]JumpToSystemCore", Vector2<int>(9, 5), Color::Gray);
 
 	// camPos
 	const Vector2<int> viewTransform = Renderer::Instance().GetViewTransform() * -1;

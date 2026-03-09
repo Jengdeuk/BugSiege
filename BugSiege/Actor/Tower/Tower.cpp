@@ -78,6 +78,7 @@ void Tower::TickCollapsed(float deltaTime)
 
 void Tower::Damaged(const int damage)
 {
+	PlayColorAnimation(towerData.damagedAnimSeq);
 	towerData.health -= damage;
 	if (towerData.health <= 0)
 	{

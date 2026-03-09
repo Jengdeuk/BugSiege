@@ -16,6 +16,7 @@ namespace JD
 		image = actorData.image;
 		position = actorData.position;
 		color = actorData.color;
+		backColor = actorData.backColor;
 		sortingOrder = actorData.sortingOrder;
 	}
 
@@ -23,11 +24,20 @@ namespace JD
 	{
 		hasBeganPlay = true;
 		animSequence = {};
+		colorAnimSequence = {};
+		backColorAnimSequence = {};
 	}
 
 	void Actor::Tick(float deltaTime)
 	{
 		TickAnim(deltaTime);
+		if (animSequence.seq)
+		{
+			return;
+		}
+
+		TickColorAnim(deltaTime);
+		TickBackColorAnim(deltaTime);
 	}
 
 	void Actor::Draw()
@@ -43,7 +53,7 @@ namespace JD
 			return;
 		}
 
-		Renderer::Instance().Submit(image, screenPos, color, sortingOrder);
+		Renderer::Instance().Submit(image, screenPos, color | (backColor << 4), sortingOrder);
 	}
 
 	bool Actor::TransformWorldToScreen(Vector2<int>& outScreenPos)
@@ -111,11 +121,37 @@ namespace JD
 	{
 		animTimer.Reset();
 		animTimer.SetTargetTime(animSequence.seq[idx].playTime);
-		if (!animSequence.seq[idx].isChangeColorOnly)
-		{
-			SetImage(animSequence.seq[idx].image);
-		}
+		SetImage(animSequence.seq[idx].image);
 		SetColor(animSequence.seq[idx].color);
+		SetBackColor(animSequence.seq[idx].backColor);
+	}
+
+	void Actor::PlayColorAnimation(const AnimSequence& animSequence)
+	{
+		this->colorAnimSequence = animSequence;
+		curColorAnimIdx = 0;
+		JumpColorAnimFrame(curColorAnimIdx);
+	}
+
+	void Actor::JumpColorAnimFrame(const int idx)
+	{
+		colorAnimTimer.Reset();
+		colorAnimTimer.SetTargetTime(colorAnimSequence.seq[idx].playTime);
+		SetColor(colorAnimSequence.seq[idx].color);
+	}
+
+	void Actor::PlayBackColorAnimation(const AnimSequence& animSequence)
+	{
+		this->backColorAnimSequence = animSequence;
+		curBackColorAnimIdx = 0;
+		JumpBackColorAnimFrame(curBackColorAnimIdx);
+	}
+
+	void Actor::JumpBackColorAnimFrame(const int idx)
+	{
+		backColorAnimTimer.Reset();
+		backColorAnimTimer.SetTargetTime(backColorAnimSequence.seq[idx].playTime);
+		SetBackColor(backColorAnimSequence.seq[idx].backColor);
 	}
 
 	void Actor::Destroy()
@@ -141,9 +177,56 @@ namespace JD
 			animSequence.seq = nullptr;
 			SetImage(actorData.image);
 			SetColor(actorData.color);
+			SetBackColor(actorData.backColor);
 			return;
 		}
 
 		JumpAnimFrame(++curAnimIdx);
+	}
+
+	void Actor::TickColorAnim(float deltaTime)
+	{
+		if (!colorAnimSequence.seq)
+		{
+			return;
+		}
+
+		colorAnimTimer.Tick(deltaTime);
+		if (!colorAnimTimer.IsTimeOut())
+		{
+			return;
+		}
+
+		if (curColorAnimIdx == colorAnimSequence.size - 1)
+		{
+			colorAnimSequence.seq = nullptr;
+			SetColor(actorData.color);
+			return;
+		}
+
+		JumpColorAnimFrame(++curColorAnimIdx);
+	}
+
+	void Actor::TickBackColorAnim(float deltaTime)
+	{
+		if (!backColorAnimSequence.seq)
+		{
+			return;
+		}
+
+		backColorAnimTimer.Tick(deltaTime);
+		if (!backColorAnimTimer.IsTimeOut())
+		{
+			return;
+		}
+
+		if (curBackColorAnimIdx == backColorAnimSequence.size - 1)
+		{
+			backColorAnimSequence.seq = nullptr;
+			SetBackColor(actorData.backColor);
+			return;
+		}
+
+		JumpBackColorAnimFrame(++curBackColorAnimIdx);
 	}
 }

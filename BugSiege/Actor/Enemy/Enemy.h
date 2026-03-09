@@ -19,6 +19,9 @@ class Enemy : public Actor
 		float reloadTime = 0.0f;
 		float speed = 0.0f;
 		Actor::AnimSequence occurAnimSeq;
+		Actor::AnimSequence attackAnimSeq;
+		Actor::AnimSequence damagedAnimSeq;
+		Actor::AnimSequence fixedAnimSeq;
 	};
 	
 	enum class State
@@ -27,6 +30,7 @@ class Enemy : public Actor
 		Search,
 		Trace,
 		Attack,
+		Fixed,
 		Count
 	};
 
@@ -43,12 +47,15 @@ protected:
 	virtual void TickSearch(float deltaTime);
 	virtual void TickTrace(float deltaTime);
 	virtual void TickAttack(float deltaTime);
+	virtual void TickFixed(float deltaTime);
 
 public:
 	virtual void Attack();
+	virtual void Damaged(const int damage);
 
 public:
 	inline bool HasOccured() const { return hasOccured; }
+	inline bool HasFixed() const { return hasFixed; }
 	inline const EnemyData& GetEnemyData() const { return enemyData; }
 
 private:
@@ -59,6 +66,7 @@ private:
 
 private:
 	bool hasOccured = false;
+	bool hasFixed = false;
 	State curState = State::Count;
 
 private:

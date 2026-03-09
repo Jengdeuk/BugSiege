@@ -4,6 +4,8 @@
 
 void SystemCore::Damaged(const int damage)
 {
+	PlayColorAnimation(GetTowerData().damagedAnimSeq);
+	GetOwner()->As<GameLevel>()->DamagedSystemCore(damage);
 }
 
 void SystemCore::UpdateGridForNavigation()

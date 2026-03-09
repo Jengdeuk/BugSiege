@@ -23,7 +23,8 @@ namespace JD
 		{
 			const char* image = nullptr;
 			Vector2<float> position;
-			WORD color = Color::Gray;
+			WORD color = 0;
+			WORD backColor = 0;
 			int sortingOrder = 0;
 		};
 
@@ -31,8 +32,8 @@ namespace JD
 		{
 			float playTime = 0.0f;
 			const char* image = nullptr;
-			WORD color = Color::Gray;
-			bool isChangeColorOnly = false;
+			WORD color = 0;
+			WORD backColor = 0;
 		};
 
 		struct AnimSequence
@@ -66,6 +67,10 @@ namespace JD
 	public:
 		void PlayAnimation(const AnimSequence& animSequence);
 		void JumpAnimFrame(const int idx);
+		void PlayColorAnimation(const AnimSequence& animSequence);
+		void JumpColorAnimFrame(const int idx);
+		void PlayBackColorAnimation(const AnimSequence& animSequence);
+		void JumpBackColorAnimFrame(const int idx);
 
 	public:
 		void Destroy();
@@ -96,9 +101,12 @@ namespace JD
 
 		inline void SetImage(const char* newImage) { image = newImage; }
 		inline void SetColor(const WORD newColor) { color = newColor; }
+		inline void SetBackColor(const WORD newBackColor) { backColor = newBackColor; }
 
 	private:
 		void TickAnim(float deltaTime);
+		void TickColorAnim(float deltaTime);
+		void TickBackColorAnim(float deltaTime);
 
 	private:
 		ActorData actorData;
@@ -115,11 +123,18 @@ namespace JD
 		AnimSequence animSequence;
 		Timer animTimer;
 		int curAnimIdx = 0;
+		AnimSequence colorAnimSequence;
+		Timer colorAnimTimer;
+		int curColorAnimIdx = 0;
+		AnimSequence backColorAnimSequence;
+		Timer backColorAnimTimer;
+		int curBackColorAnimIdx = 0;
 
 	private:
 		const char* image = nullptr;
 		Vector2<float> position{};
-		WORD color = Color::White;
+		WORD color = 0;
+		WORD backColor = 0;
 		int sortingOrder = 0;
 	};
 }

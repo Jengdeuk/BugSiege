@@ -28,9 +28,6 @@ private:
 	virtual void TickAttack(float deltaTime) override;
 
 private:
-	virtual void Attack() override;
-
-private:
 	bool IsTargetValid();
 	bool HasArrived();
 	virtual bool CanAttack() override;

@@ -45,6 +45,7 @@ public:
 	virtual void Draw() override;
 
 public:
+	void DamagedSystemCore(const int damage);
 	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand = false);
 	void UpdateGridsForNavigation(const TowerType& type, const Vector2<int>& pos, const int value = 1);
 	std::vector<Actor*> QueryActorsInRange(const Bounds& bounds);
@@ -67,6 +68,8 @@ private:
 
 private:
 	Vector2<int> mapSize;
+	bool isGameOver = false;
+	int integrity = 0;
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
 	PlayerController* playerController = nullptr;
@@ -95,8 +98,9 @@ private:
 
 // HUD
 private:
-	char bufferCamPos[256] = {};
-	char bufferMousePos[256] = {};
-	char bufferStime[256] = {};
-	char bufferFPS[256] = {};
+	char bufferIntegrity[10] = {};
+	char bufferStime[20] = {};
+	char bufferCamPos[20] = {};
+	char bufferMousePos[20] = {};
+	char bufferFPS[10] = {};
 };

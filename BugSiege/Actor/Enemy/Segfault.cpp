@@ -138,11 +138,6 @@ void Segfault::TickAttack(float deltaTime)
 	Super::TickAttack(deltaTime);
 }
 
-void Segfault::Attack()
-{
-	target->Damaged(GetEnemyData().damage);
-}
-
 bool Segfault::IsTargetValid()
 {
 	return target && !target->DestroyRequested() && !target->HasCollapsed();

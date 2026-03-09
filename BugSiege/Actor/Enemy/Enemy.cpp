@@ -10,6 +10,7 @@ void Enemy::Initialize(const EnemyData& initData)
 	enemyData = initData;
 
 	hasOccured = false;
+	hasFixed = false;
 	curState = State::Count;
 }
 
@@ -37,6 +38,9 @@ void Enemy::Tick(float deltaTime)
 	case State::Attack:
 		TickAttack(deltaTime);
 		break;
+	case State::Fixed:
+		TickFixed(deltaTime);
+		break;
 	default:
 		break;
 	}
@@ -52,6 +56,9 @@ void Enemy::ChangeState(const State nxtState)
 	case State::Attack:
 		attackTimer.Reset();
 		attackTimer.SetTargetTime(enemyData.reloadTime);
+		break;
+	case State::Fixed:
+		PlayAnimation(enemyData.fixedAnimSeq);
 		break;
 	default:
 		break;
@@ -103,8 +110,32 @@ void Enemy::TickAttack(float deltaTime)
 	Attack();
 }
 
+void Enemy::TickFixed(float deltaTime)
+{
+	if (GetAnimSequence().seq)
+	{
+		return;
+	}
+
+	Destroy();
+}
+
 void Enemy::Attack()
 {
+	PlayBackColorAnimation(enemyData.attackAnimSeq);
+	target->Damaged(GetEnemyData().damage);
+}
+
+void Enemy::Damaged(const int damage)
+{
+	PlayColorAnimation(enemyData.damagedAnimSeq);
+	enemyData.health -= damage;
+	if (enemyData.health <= 0)
+	{
+		hasFixed = true;
+		// todo: update uniform grid
+		ChangeState(State::Fixed);
+	}
 }
 
 bool Enemy::CanAttack()
