@@ -97,8 +97,8 @@ void Enemy::TickTrace(float deltaTime)
 	}
 
 	const Vector2<float> pos{ GetPosition() };
-	Vector2<float> nxtDst{ GetOwner()->As<GameLevel>()->GetNextNodeByFlowField(Vector2<int>(pos)) };
-	const Vector2<float> dir{ (nxtDst - pos).Normalized() };
+	//Vector2<float> nxtDst{ GetOwner()->As<GameLevel>()->GetNextNodeByFlowField(Vector2<int>(pos)) };
+	const Vector2<float> dir{ (target->GetPosition() - pos).Normalized() };
 	SetPosition(pos + dir * GetEnemyData().speed * deltaTime);
 }
 
@@ -160,6 +160,7 @@ void Enemy::Damaged(const int damage)
 	if (enemyData.health <= 0)
 	{
 		hasFixed = true;
+		GetOwner()->As<GameLevel>()->GainCPU(enemyData.cpu);
 		ChangeState(State::Fixed);
 	}
 }

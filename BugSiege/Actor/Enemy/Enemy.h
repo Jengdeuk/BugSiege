@@ -13,6 +13,7 @@ class Enemy : public Actor
 	struct EnemyData
 	{
 		int tier = 0;
+		int cpu = 0;
 		int health = 0;
 		int damage = 0;
 		float radius = 0;

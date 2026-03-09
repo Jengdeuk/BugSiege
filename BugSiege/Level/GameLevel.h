@@ -31,6 +31,9 @@ class MutexBarrier;
 class ExceptionHandler;
 
 class Bug;
+class Worm;
+class Trojan;
+class MemoryLeak;
 class Segfault;
 
 class GameLevel : public Level
@@ -47,6 +50,7 @@ public:
 
 public:
 	void DamagedSystemCore(const int damage);
+	void GainCPU(const int amount);
 	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand = false);
 	void UpdateGridsForNavigation(const TowerType& type, const Vector2<int>& pos, const int value = 1);
 	std::vector<Actor*> QueryActorsInQuadTree(const Bounds& bounds);
@@ -58,11 +62,13 @@ public:
 public:
 	inline const Vector2<int>& GetMapSize() const { return mapSize; }
 	inline int GetCellSize() const { return cellSize; }
-	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
 	inline const std::vector<std::vector<int>>& GetDangerGrid() const { return dangerGrid; }
 	inline const std::vector<std::vector<bool>>& GetWallGrid() const { return wallGrid; }
 	inline const Vector2<int>& GetNextNodeByFlowField(const Vector2<int>& pos) const { return flowGrid[pos.y][pos.x]; }
 	inline const std::vector<SystemCore*>& GetSystemCores() const { return systemCores; }
+
+public:
+	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
 
 private:
 	void DrawHUD();
@@ -70,15 +76,26 @@ private:
 
 private:
 	void UpdateFlowGridByBFS();
+	void Regen();
+	void LevelUp();
 
 private:
 	Vector2<int> mapSize;
 	bool isGameOver = false;
 	int integrity = 0;
+	int cpu = 0;
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
 	PlayerController* playerController = nullptr;
 	std::vector<SystemCore*> systemCores;
+
+private:
+	float regenTime = 0.0f;
+	float regenCount = 0.0f;
+	Timer regenTimer;
+	int level = 0;
+	float levelUpTime = 0.0f;
+	Timer levelUpTimer;
 
 // Navigation
 private:
@@ -88,6 +105,7 @@ private:
 
 // Partition
 private:
+	bool isDrawDebugQuadTree = false;
 	int cellSize = 0;
 	std::unique_ptr<QuadTree> quadTree;
 	std::unique_ptr<UniformGrid> uniformGrid;
@@ -101,11 +119,16 @@ private:
 	std::unique_ptr<ObjectPool<MutexBarrier>> mutexBarrierPool;
 	std::unique_ptr<ObjectPool<ExceptionHandler>> exceptionHandlerPool;
 	std::unique_ptr<ObjectPool<Bug>> bugPool;
+	std::unique_ptr<ObjectPool<Worm>> wormPool;
+	std::unique_ptr<ObjectPool<Trojan>> trojanPool;
+	std::unique_ptr<ObjectPool<MemoryLeak>> memoryLeakPool;
 	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
 
 // HUD
 private:
 	char bufferIntegrity[10] = {};
+	char bufferCPU[10] = {};
+	char bufferLevel[10] = {};
 	char bufferStime[20] = {};
 	char bufferCamPos[20] = {};
 	char bufferMousePos[20] = {};

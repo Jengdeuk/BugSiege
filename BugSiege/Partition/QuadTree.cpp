@@ -69,5 +69,5 @@ std::vector<Actor*> QuadTree::Query(const Bounds& bounds)
 
 void QuadTree::Draw()
 {
-	//root->DrawRecursive();
+	root->DrawRecursive();
 }

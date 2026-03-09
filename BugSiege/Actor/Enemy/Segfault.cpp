@@ -5,7 +5,7 @@
 
 #include "Level/GameLevel.h"
 #include "Partition/QuadNode.h"
-#include "Actor/Tower/Tower.h"
+#include "Actor/Tower/SystemCore.h"
 
 static const int radius = 15;
 static const int l = 2 * radius;
@@ -68,6 +68,22 @@ void Segfault::TickSearch(float deltaTime)
 	SearchTarget();
 	if (!IsTargetValid())
 	{
+		const Vector2<float> pos = GetPosition();
+		float nearDist = 12345678.9f;
+		for (auto& systemCore : GetOwner()->As<GameLevel>()->GetSystemCores())
+		{
+			float dist = sqrt(LengthSq(systemCore->GetPosition() - pos));
+			if (dist < nearDist)
+			{
+				nearDist = dist;
+				target = systemCore;
+			}
+		}
+
+		//Vector2<float> nxtDst{ GetOwner()->As<GameLevel>()->GetNextNodeByFlowField(Vector2<int>(pos)) };
+		const Vector2<float> dir{ (target->GetPosition() - pos).Normalized() };
+		SetPosition(pos + dir * GetEnemyData().speed * deltaTime);
+
 		return;
 	}
 

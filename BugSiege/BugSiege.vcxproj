@@ -102,7 +102,10 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
   <ItemGroup>
     <ClCompile Include="Actor\Enemy\Bug.cpp" />
     <ClCompile Include="Actor\Enemy\Enemy.cpp" />
+    <ClCompile Include="Actor\Enemy\MemoryLeak.cpp" />
     <ClCompile Include="Actor\Enemy\Segfault.cpp" />
+    <ClCompile Include="Actor\Enemy\Trojan.cpp" />
+    <ClCompile Include="Actor\Enemy\Worm.cpp" />
     <ClCompile Include="Actor\Tower\CompilerTurret.cpp" />
     <ClCompile Include="Actor\Tower\DebuggerNode.cpp" />
     <ClCompile Include="Actor\Tower\ExceptionHandler.cpp" />
@@ -124,7 +127,10 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
   <ItemGroup>
     <ClInclude Include="Actor\Enemy\Bug.h" />
     <ClInclude Include="Actor\Enemy\Enemy.h" />
+    <ClInclude Include="Actor\Enemy\MemoryLeak.h" />
     <ClInclude Include="Actor\Enemy\Segfault.h" />
+    <ClInclude Include="Actor\Enemy\Trojan.h" />
+    <ClInclude Include="Actor\Enemy\Worm.h" />
     <ClInclude Include="Actor\Tower\CompilerTurret.h" />
     <ClInclude Include="Actor\Tower\DebuggerNode.h" />
     <ClInclude Include="Actor\Tower\ExceptionHandler.h" />
