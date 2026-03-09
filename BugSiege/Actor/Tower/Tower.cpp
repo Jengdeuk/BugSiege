@@ -82,7 +82,7 @@ void Tower::Damaged(const int damage)
 	if (towerData.health <= 0)
 	{
 		hasCollapsed = true;
-		UpdateDangerGrid();
+		UpdateGridForNavigation();
 		GetOwner()->As<GameLevel>()->RemoveActorInQuadTree(this);
 		ChangeState(State::Collapsed);
 	}

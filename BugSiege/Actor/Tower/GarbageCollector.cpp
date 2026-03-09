@@ -2,7 +2,7 @@
 
 #include "Level/GameLevel.h"
 
-void GarbageCollector::UpdateDangerGrid()
+void GarbageCollector::UpdateGridForNavigation()
 {
-	GetOwner()->As<GameLevel>()->UpdateDangerGrid(TowerType::GarbageCollector, Vector2<int>(GetPosition()), -1);
+	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::GarbageCollector, Vector2<int>(GetPosition()), -1);
 }

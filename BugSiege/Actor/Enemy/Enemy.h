@@ -4,6 +4,8 @@
 
 using namespace JD;
 
+class Tower;
+
 class Enemy : public Actor
 {
 	RTTI_DECLARATIONS(Enemy, Actor)
@@ -38,16 +40,19 @@ public:
 
 protected:
 	virtual void TickOccur(float deltaTime);
-	virtual void TickSearch(float deltaTime) = 0;
-	virtual void TickTrace(float deltaTime) = 0;
+	virtual void TickSearch(float deltaTime);
+	virtual void TickTrace(float deltaTime);
 	virtual void TickAttack(float deltaTime);
 
 public:
-	virtual void Attack() = 0;
+	virtual void Attack();
 
 public:
 	inline bool HasOccured() const { return hasOccured; }
 	inline const EnemyData& GetEnemyData() const { return enemyData; }
+
+private:
+	virtual bool CanAttack();
 
 private:
 	EnemyData enemyData;
@@ -58,4 +63,7 @@ private:
 
 private:
 	Timer attackTimer;
+
+protected:
+	Tower* target = nullptr;
 };

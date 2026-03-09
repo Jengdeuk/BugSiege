@@ -1,5 +1,8 @@
 #include "Enemy.h"
+
+#include "Level/GameLevel.h"
 #include "Physics/Collision.h"
+#include "Actor/Tower/SystemCore.h"
 
 void Enemy::Initialize(const EnemyData& initData)
 {
@@ -68,6 +71,26 @@ void Enemy::TickOccur(float deltaTime)
 	ChangeState(State::Search);
 }
 
+void Enemy::TickSearch(float deltaTime)
+{
+	ChangeState(State::Trace);
+}
+
+void Enemy::TickTrace(float deltaTime)
+{
+	// attack target
+	if (CanAttack())
+	{
+		ChangeState(State::Attack);
+		return;
+	}
+
+	const Vector2<float> pos{ GetPosition() };
+	Vector2<float> nxtDst{ GetOwner()->As<GameLevel>()->GetNextNodeByFlowField(Vector2<int>(pos)) };
+	const Vector2<float> dir{ (nxtDst - pos).Normalized() };
+	SetPosition(pos + dir * GetEnemyData().speed * deltaTime);
+}
+
 void Enemy::TickAttack(float deltaTime)
 {
 	attackTimer.Tick(deltaTime);
@@ -78,4 +101,25 @@ void Enemy::TickAttack(float deltaTime)
 
 	attackTimer.Reset();
 	Attack();
+}
+
+void Enemy::Attack()
+{
+}
+
+bool Enemy::CanAttack()
+{
+	const Vector2<float> pos = GetPosition();
+	float nearDist = 12345678.9f;
+	for (auto& systemCore : GetOwner()->As<GameLevel>()->GetSystemCores())
+	{
+		float dist = sqrt(LengthSq(systemCore->GetPosition() - pos));
+		if (dist < nearDist)
+		{
+			nearDist = dist;
+			target = systemCore;
+		}
+	}
+
+	return nearDist <= GetEnemyData().radius;
 }

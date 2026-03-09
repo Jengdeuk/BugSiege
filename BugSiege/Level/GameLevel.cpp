@@ -19,9 +19,10 @@
 #include "Actor/Tower/MutexBarrier.h"
 #include "Actor/Tower/ExceptionHandler.h"
 
+#include "Actor/Enemy/Bug.h"
 #include "Actor/Enemy/Segfault.h"
 
-#include <memory>
+#include <queue>
 
 using namespace JD;
 
@@ -34,17 +35,17 @@ static const Actor::AnimFrame buildAnimSeqTower[] =
 
 static const Actor::AnimFrame collapsedAnimSeqTower[] =
 {
+	{ 0.06f, " ", Color::Green << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Green << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Green << 4, false },
+	{ 0.06f, " ", Color::White << 4, false },
+	{ 0.06f, " ", Color::Green << 4, false },
 	{ 0.06f, "*", Color::Green, false },
 	{ 0.06f, "*", Color::White, false },
 	{ 0.06f, "*", Color::Green, false },
-	{ 0.06f, "*", Color::White, false },
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Green << 4, false },
-	{ 0.06f, " ", Color::White << 4, false },
-	{ 0.06f, " ", Color::Green << 4, false }
+	{ 0.06f, "*", Color::White, false }
 };
 
 static const Actor::AnimFrame buildAnimSeqSystemCore[] =
@@ -74,7 +75,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	{ 5, 1, 1, 4.0f, 1.0f, { buildAnimSeqTower, _countof(buildAnimSeqTower) }, { collapsedAnimSeqTower, _countof(collapsedAnimSeqTower) } }
 };
 
-static const Actor::AnimFrame occurAnimSeqEnmey[] =
+static const Actor::AnimFrame occurAnimSeqEnemy[] =
 {
 	{ 0.06f, "*", Color::Red, false },
 	{ 0.06f, "*", Color::White, false },
@@ -106,16 +107,16 @@ static const Actor::AnimFrame occurAnimSeqSegfault[] =
 
 static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Count)] =
 {
+	{ "B", {}, Color::Red, 5 },
 	{  },
 	{  },
 	{  },
-	{  },
-	{ "S", {}, Color::Magenta, 11 }
+	{ "S", {}, Color::Magenta, 9 }
 };
 
 static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Count)] =
 {
-	{  },
+	{ 1, 1, 1, 1.1f, 1.0f, 5.0f, { occurAnimSeqEnemy, _countof(occurAnimSeqEnemy) } },
 	{  },
 	{  },
 	{  },
@@ -130,22 +131,37 @@ GameLevel::GameLevel(const Vector2<int>& mapSize)
 
 void GameLevel::Initialize()
 {
+	// Navigation & Partition
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
 	dangerGrid.assign(gridSize.y, std::vector<int>(gridSize.x, 0));
 	wallGrid.assign(gridSize.y, std::vector<bool>(gridSize.x, false));
+	flowGrid.assign(gridSize.y, std::vector<Vector2<int>>(gridSize.x, Vector2<int>()));
 	quadTree = std::make_unique<QuadTree>();
 
+	// Player
 	std::unique_ptr<PlayerController> newPlayerController = std::make_unique<PlayerController>();
 	playerController = newPlayerController.get();
 	AddNewActor(std::move(newPlayerController));
 
+	// Object Pool
 	systemCorePool = std::make_unique<ObjectPool<SystemCore>>();
 	compilerTurretPool = std::make_unique<ObjectPool<CompilerTurret>>();
 	debuggerNodePool = std::make_unique<ObjectPool<DebuggerNode>>();
 	garbageCollectorPool = std::make_unique<ObjectPool<GarbageCollector>>();
 	mutexBarrierPool = std::make_unique<ObjectPool<MutexBarrier>>();
 	exceptionHandlerPool = std::make_unique<ObjectPool<ExceptionHandler>>();
+	bugPool = std::make_unique<ObjectPool<Bug>>();
 	segfaultPool = std::make_unique<ObjectPool<Segfault>>();
+
+	// System Core
+	float centerX = static_cast<float>((gridSize.x - 1) / 2);
+	float centerY = static_cast<float>((gridSize.y - 1) / 2);
+	const int dx[] = { 0, 1, 0, 1 };
+	const int dy[] = { 0, 0, 1, 1 };
+	for (int i = 0; i < 4; ++i)
+	{
+		BuildTowerToGround(TowerType::SystemCore, Vector2<float>(centerX + dx[i], centerY + dy[i]), true);
+	}
 }
 
 void GameLevel::Tick(float deltaTime)
@@ -158,16 +174,26 @@ void GameLevel::Tick(float deltaTime)
 
 	if (Input::Instance().GetMouseButtonDown(1))
 	{
-		// Spawn Segfault
+		// Spawn Bug
 		{
-			const int typeIdx = static_cast<int>(EnemyType::Segfault);
-			std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+			const int typeIdx = static_cast<int>(EnemyType::Bug);
+			std::unique_ptr<Enemy> newEnemy = bugPool->Acquire();
 			Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
 			actorData.position = Input::Instance().MouseWorldPosition();
 			newEnemy->As<Actor>()->Initialize(actorData);
 			newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
 			AddNewActor(std::move(newEnemy));
 		}
+		//// Spawn Segfault
+		//{
+		//	const int typeIdx = static_cast<int>(EnemyType::Segfault);
+		//	std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+		//	Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
+		//	actorData.position = Input::Instance().MouseWorldPosition();
+		//	newEnemy->As<Actor>()->Initialize(actorData);
+		//	newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
+		//	AddNewActor(std::move(newEnemy));
+		//}
 		return;
 	}
 
@@ -187,21 +213,29 @@ void GameLevel::Draw()
 	DrawHUD();
 }
 
-bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos)
+bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand)
 {
 	Vector2<int> screenPos;
-	if (!Renderer::Instance().TransformWorldToScreen(groundPos, screenPos))
+	if (!isForceCommand && !Renderer::Instance().TransformWorldToScreen(groundPos, screenPos))
 	{
 		return false;
 	}
 
 	const int typeIdx = static_cast<int>(type);
 	const Vector2<int> pos{ groundPos };
+	if (wallGrid[pos.y][pos.x])
+	{
+		return false;
+	}
 
 	// Acquire and Add Tower to Level
 	std::unique_ptr<Tower> tower;
 	switch (type)
 	{
+	case TowerType::SystemCore:
+		tower = systemCorePool->Acquire();
+		systemCores.emplace_back(tower->As<SystemCore>());
+		break;
 	case TowerType::CompilerTurret:
 		tower = compilerTurretPool->Acquire();
 		break;
@@ -228,8 +262,8 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	tower->Initialize(towerInitTowerData[typeIdx]);
 	AddNewActor(std::move(tower));
 
-	// Update DangerGrid for Navigation
-	UpdateDangerGrid(type, pos, 1);
+	// Update Grids for Navigation
+	UpdateGridsForNavigation(type, pos, 1);
 
 	// Insert Tower to QuadTree
 	quadTree->Insert(towerActor);
@@ -237,9 +271,12 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	return true;
 }
 
-void GameLevel::UpdateDangerGrid(const TowerType& type, const Vector2<int>& pos, const int value)
+void GameLevel::UpdateGridsForNavigation(const TowerType& type, const Vector2<int>& pos, const int value)
 {
-	wallGrid[pos.y][pos.x] = true;
+	// Wall Grid
+	wallGrid[pos.y][pos.x] = (value == 1);
+
+	// Danger Grid
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
 	const int r = static_cast<int>(towerInitTowerData[static_cast<int>(type)].radius);
 	for (int y = pos.y - r; y <= pos.y + r; ++y)
@@ -259,6 +296,9 @@ void GameLevel::UpdateDangerGrid(const TowerType& type, const Vector2<int>& pos,
 			}
 		}
 	}
+
+	// Flow Field
+	UpdateFlowGridByBFS();
 }
 
 std::vector<Actor*> GameLevel::QueryActorsInRange(const Bounds& bounds)
@@ -342,4 +382,68 @@ void GameLevel::DrawBorderLine()
 		Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, i), Color::Gray);
 	}
 	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, screenY - 1), Color::Gray);
+}
+
+void GameLevel::UpdateFlowGridByBFS()
+{
+	using p = std::pair<float, Vector2<int>>;
+
+	for (auto& row : flowGrid)
+	{
+		for (auto& node : row)
+		{
+			node = Vector2<int>();
+		}
+	}
+
+	static const float inf = FLT_MAX;
+	static const float diagonalCst = 1.41421356f;
+	static const int dx[] = { -1, 0, 1, 0, -1, 1, -1, 1 };
+	static const int dy[] = { 0, -1, 0, 1, -1, -1, 1, 1 };
+
+	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
+	std::vector<std::vector<float>> distGrid(gridSize.y, std::vector<float>(gridSize.x, inf));
+
+	std::queue<p> q;
+	for (SystemCore* systemCore : systemCores)
+	{
+		Vector2<int> pos{ systemCore->GetPosition() };
+		distGrid[pos.y][pos.x] = 0.0f;
+		q.emplace(0.0f, pos);
+	}
+
+	while (!q.empty())
+	{
+		float dist = q.front().first;
+		Vector2<int> pos = q.front().second;
+		q.pop();
+
+		if (dist > distGrid[pos.y][pos.x])
+		{
+			continue;
+		}
+
+		for (int i = 0; i < 8; ++i)
+		{
+			int nx = pos.x + dx[i];
+			int ny = pos.y + dy[i];
+			if (nx < 0 || nx >= gridSize.x || ny < 0 || ny >= gridSize.y)
+			{
+				continue;
+			}
+
+			if (wallGrid[ny][nx] || (wallGrid[ny][pos.x] && wallGrid[pos.y][nx]))
+			{
+				continue;
+			}
+			
+			float ndist = dist + (i < 4 ? 1 : diagonalCst);
+			if (ndist < distGrid[ny][nx])
+			{
+				distGrid[ny][nx] = ndist;
+				flowGrid[ny][nx] = pos;
+				q.emplace(ndist, Vector2<int>(nx, ny));
+			}
+		}
+	}
 }

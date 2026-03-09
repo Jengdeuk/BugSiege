@@ -42,7 +42,7 @@ protected:
 
 public:
 	virtual void Damaged(const int damage);
-	virtual void UpdateDangerGrid() = 0;
+	virtual void UpdateGridForNavigation() = 0;
 
 public:
 	inline bool HasBuilt() const { return hasBuilt; }

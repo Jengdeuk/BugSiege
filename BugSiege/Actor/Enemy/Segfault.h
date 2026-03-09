@@ -7,7 +7,6 @@
 using namespace JD;
 
 class AStar;
-class Tower;
 
 class Segfault : public Enemy
 {
@@ -34,10 +33,9 @@ private:
 private:
 	bool IsTargetValid();
 	bool HasArrived();
-	bool CanAttack();
+	virtual bool CanAttack() override;
 
 private:
-	Tower* target = nullptr;
 	std::vector<Vector2<int>> path;
 	std::unique_ptr<AStar> navigation;
 };

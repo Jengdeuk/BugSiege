@@ -29,6 +29,7 @@ class GarbageCollector;
 class MutexBarrier;
 class ExceptionHandler;
 
+class Bug;
 class Segfault;
 
 class GameLevel : public Level
@@ -44,8 +45,8 @@ public:
 	virtual void Draw() override;
 
 public:
-	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos);
-	void UpdateDangerGrid(const TowerType& type, const Vector2<int>& pos, const int value = 1);
+	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand = false);
+	void UpdateGridsForNavigation(const TowerType& type, const Vector2<int>& pos, const int value = 1);
 	std::vector<Actor*> QueryActorsInRange(const Bounds& bounds);
 	void RemoveActorInQuadTree(Actor* actor);
 
@@ -54,21 +55,28 @@ public:
 	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
 	inline const std::vector<std::vector<int>>& GetDangerGrid() const { return dangerGrid; }
 	inline const std::vector<std::vector<bool>>& GetWallGrid() const { return wallGrid; }
+	inline const Vector2<int>& GetNextNodeByFlowField(const Vector2<int>& pos) const { return flowGrid[pos.y][pos.x]; }
+	inline const std::vector<SystemCore*>& GetSystemCores() const { return systemCores; }
 
 private:
 	void DrawHUD();
 	void DrawBorderLine();
 
 private:
+	void UpdateFlowGridByBFS();
+
+private:
 	Vector2<int> mapSize;
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
 	PlayerController* playerController = nullptr;
+	std::vector<SystemCore*> systemCores;
 
 // Navigation
 private:
 	std::vector<std::vector<int>> dangerGrid;
 	std::vector<std::vector<bool>> wallGrid;
+	std::vector<std::vector<Vector2<int>>> flowGrid;
 
 // Partition
 private:
@@ -82,6 +90,7 @@ private:
 	std::unique_ptr<ObjectPool<GarbageCollector>> garbageCollectorPool;
 	std::unique_ptr<ObjectPool<MutexBarrier>> mutexBarrierPool;
 	std::unique_ptr<ObjectPool<ExceptionHandler>> exceptionHandlerPool;
+	std::unique_ptr<ObjectPool<Bug>> bugPool;
 	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
 
 // HUD

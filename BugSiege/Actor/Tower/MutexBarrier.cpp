@@ -2,7 +2,7 @@
 
 #include "Level/GameLevel.h"
 
-void MutexBarrier::UpdateDangerGrid()
+void MutexBarrier::UpdateGridForNavigation()
 {
-	GetOwner()->As<GameLevel>()->UpdateDangerGrid(TowerType::MutexBarrier, Vector2<int>(GetPosition()), -1);
+	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::MutexBarrier, Vector2<int>(GetPosition()), -1);
 }

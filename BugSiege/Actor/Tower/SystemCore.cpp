@@ -2,7 +2,11 @@
 
 #include "Level/GameLevel.h"
 
-void SystemCore::UpdateDangerGrid()
+void SystemCore::Damaged(const int damage)
 {
-	GetOwner()->As<GameLevel>()->UpdateDangerGrid(TowerType::SystemCore, Vector2<int>(GetPosition()), -1);
+}
+
+void SystemCore::UpdateGridForNavigation()
+{
+	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::SystemCore, Vector2<int>(GetPosition()), -1);
 }

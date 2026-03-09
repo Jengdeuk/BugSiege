@@ -2,7 +2,7 @@
 
 #include "Level/GameLevel.h"
 
-void DebuggerNode::UpdateDangerGrid()
+void DebuggerNode::UpdateGridForNavigation()
 {
-	GetOwner()->As<GameLevel>()->UpdateDangerGrid(TowerType::DebuggerNode, Vector2<int>(GetPosition()), -1);
+	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::DebuggerNode, Vector2<int>(GetPosition()), -1);
 }

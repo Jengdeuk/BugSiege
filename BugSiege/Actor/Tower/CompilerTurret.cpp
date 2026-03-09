@@ -2,7 +2,7 @@
 
 #include "Level/GameLevel.h"
 
-void CompilerTurret::UpdateDangerGrid()
+void CompilerTurret::UpdateGridForNavigation()
 {
-	GetOwner()->As<GameLevel>()->UpdateDangerGrid(TowerType::CompilerTurret, Vector2<int>(GetPosition()), -1);
+	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::CompilerTurret, Vector2<int>(GetPosition()), -1);
 }

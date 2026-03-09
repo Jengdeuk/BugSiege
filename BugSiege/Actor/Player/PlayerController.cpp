@@ -9,11 +9,11 @@
 
 static const char* imgs[] =
 {
-	"@","C", "D", "G", "M", "E"
+	"@", "C", "D", "G", "M", "E"
 };
 
 void PlayerController::BeginPlay()
-{
+{ 
 	Super::BeginPlay();
 
 	camera = std::make_unique<Camera>(100.0f);
@@ -39,7 +39,7 @@ void PlayerController::Draw()
 	}
 
 	const int typeIdx = static_cast<int>(selectedTowerTypeToBuild);
-	Renderer::Instance().Submit(imgs[typeIdx], mousePos, Color::Green | Color::DarkBlue << 4, 15);
+	Renderer::Instance().Submit(imgs[typeIdx], mousePos, Color::Green | Color::DarkBlue << 4, 16);
 
 	const int cx = mousePos.x;
 	const int cy = mousePos.y;
@@ -63,7 +63,7 @@ void PlayerController::Draw()
 			int dy = y - cy;
 			if (dx * dx + dy * dy <= r * r)
 			{
-				Renderer::Instance().Submit(" ", { x, y }, WORD(Color::Blue) << 4, 10);
+				Renderer::Instance().Submit(" ", { x, y }, WORD(Color::Blue) << 4, 1);
 			}
 		}
 	}
