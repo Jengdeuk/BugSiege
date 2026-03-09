@@ -7,5 +7,5 @@ class MutexBarrier : public Tower
 	RTTI_DECLARATIONS(MutexBarrier, Tower)
 
 private:
-	virtual void UpdateGridForNavigation() override;
+	virtual void UpdateGridsForNavigation() override;
 };

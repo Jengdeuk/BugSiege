@@ -7,5 +7,5 @@ class DebuggerNode : public Tower
 	RTTI_DECLARATIONS(DebuggerNode, Tower)
 
 private:
-	virtual void UpdateGridForNavigation() override;
+	virtual void UpdateGridsForNavigation() override;
 };

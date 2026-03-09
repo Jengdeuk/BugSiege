@@ -1,4 +1,5 @@
 #include "Tower.h"
+
 #include "Level/GameLevel.h"
 #include "Physics/Collision.h"
 
@@ -10,6 +11,7 @@ void Tower::Initialize(const TowerData& initData)
 	hasBuilt = false;
 	hasCollapsed = false;
 	curState = State::Count;
+	std::vector<Actor*>().swap(targets);
 }
 
 void Tower::BeginPlay()
@@ -27,8 +29,8 @@ void Tower::Tick(float deltaTime)
 	case State::Build:
 		TickBuild(deltaTime);
 		break;
-	case State::Idle:
-		TickIdle(deltaTime);
+	case State::Attack:
+		TickAttack(deltaTime);
 		break;
 	case State::Collapsed:
 		TickCollapsed(deltaTime);
@@ -44,6 +46,10 @@ void Tower::ChangeState(const State nxtState)
 	{
 	case State::Build:
 		PlayAnimation(towerData.buildAnimSeq);
+		break;
+	case State::Attack:
+		attackTimer.Reset();
+		attackTimer.SetTargetTime(towerData.reloadTime);
 		break;
 	case State::Collapsed:
 		PlayAnimation(towerData.collapsedAnimSeq);
@@ -63,7 +69,25 @@ void Tower::TickBuild(float deltaTime)
 	}
 
 	hasBuilt = true;
-	ChangeState(State::Idle);
+	ChangeState(State::Attack);
+}
+
+void Tower::TickAttack(float deltaTime)
+{
+	attackTimer.Tick(deltaTime);
+	if (!attackTimer.IsTimeOut())
+	{
+		return;
+	}
+
+	targets = GetOwner()->As<GameLevel>()->QueryActorsInUniformGrid(Vector2<int>(GetPosition()), towerData.radius);
+	if (targets.empty())
+	{
+		return;
+	}
+
+	attackTimer.Reset();
+	Attack();
 }
 
 void Tower::TickCollapsed(float deltaTime)
@@ -76,6 +100,10 @@ void Tower::TickCollapsed(float deltaTime)
 	Destroy();
 }
 
+void Tower::Attack()
+{
+}
+
 void Tower::Damaged(const int damage)
 {
 	PlayColorAnimation(towerData.damagedAnimSeq);
@@ -83,7 +111,7 @@ void Tower::Damaged(const int damage)
 	if (towerData.health <= 0)
 	{
 		hasCollapsed = true;
-		UpdateGridForNavigation();
+		UpdateGridsForNavigation();
 		GetOwner()->As<GameLevel>()->RemoveActorInQuadTree(this);
 		ChangeState(State::Collapsed);
 	}

@@ -8,7 +8,7 @@ void SystemCore::Damaged(const int damage)
 	GetOwner()->As<GameLevel>()->DamagedSystemCore(damage);
 }
 
-void SystemCore::UpdateGridForNavigation()
+void SystemCore::UpdateGridsForNavigation()
 {
 	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::SystemCore, Vector2<int>(GetPosition()), -1);
 }

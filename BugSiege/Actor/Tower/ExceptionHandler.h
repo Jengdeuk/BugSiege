@@ -7,5 +7,5 @@ class ExceptionHandler : public Tower
 	RTTI_DECLARATIONS(ExceptionHandler, Tower)
 
 private:
-	virtual void UpdateGridForNavigation() override;
+	virtual void UpdateGridsForNavigation() override;
 };

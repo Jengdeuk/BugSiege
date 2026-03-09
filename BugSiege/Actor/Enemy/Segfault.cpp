@@ -34,7 +34,7 @@ void Segfault::SearchTarget()
 {
 	const int x = static_cast<int>(round(GetPosition().x));
 	const int y = static_cast<int>(round(GetPosition().y));
-	std::vector<Actor*> actors = GetOwner()->As<GameLevel>()->QueryActorsInRange(Bounds{ x - radius, y - radius, l, l });
+	std::vector<Actor*> actors = GetOwner()->As<GameLevel>()->QueryActorsInQuadTree(Bounds{ x - radius, y - radius, l, l });
 
 	target = nullptr;
 	int tTier = 0;
@@ -136,6 +136,16 @@ void Segfault::TickAttack(float deltaTime)
 	}
 
 	Super::TickAttack(deltaTime);
+}
+
+void Segfault::Damaged(const int damage)
+{
+	Super::Damaged(damage);
+
+	if (HasFixed())
+	{
+		path.clear();
+	}
 }
 
 bool Segfault::IsTargetValid()

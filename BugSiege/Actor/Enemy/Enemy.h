@@ -49,6 +49,9 @@ protected:
 	virtual void TickAttack(float deltaTime);
 	virtual void TickFixed(float deltaTime);
 
+private:
+	void UpdateUniformGrid();
+
 public:
 	virtual void Attack();
 	virtual void Damaged(const int damage);
@@ -68,6 +71,7 @@ private:
 	bool hasOccured = false;
 	bool hasFixed = false;
 	State curState = State::Count;
+	Vector2<int> cellPos;
 
 private:
 	Timer attackTimer;

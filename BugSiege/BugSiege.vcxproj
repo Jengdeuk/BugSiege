@@ -118,6 +118,7 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Navigation\AStar.cpp" />
     <ClCompile Include="Partition\QuadNode.cpp" />
     <ClCompile Include="Partition\QuadTree.cpp" />
+    <ClCompile Include="Partition\UniformGrid.cpp" />
     <ClCompile Include="Physics\PhysicsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -137,8 +138,10 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClInclude Include="Level\MenuLevel.h" />
     <ClInclude Include="Actor\Player\PlayerController.h" />
     <ClInclude Include="Navigation\AStar.h" />
+    <ClInclude Include="Partition\Bounds.h" />
     <ClInclude Include="Partition\QuadNode.h" />
     <ClInclude Include="Partition\QuadTree.h" />
+    <ClInclude Include="Partition\UniformGrid.h" />
     <ClInclude Include="Physics\Collision.h" />
     <ClInclude Include="Physics\PhysicsManager.h" />
   </ItemGroup>

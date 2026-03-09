@@ -12,6 +12,8 @@ void Enemy::Initialize(const EnemyData& initData)
 	hasOccured = false;
 	hasFixed = false;
 	curState = State::Count;
+	cellPos = { -1, -1 };
+	target = nullptr;
 }
 
 void Enemy::BeginPlay()
@@ -44,6 +46,8 @@ void Enemy::Tick(float deltaTime)
 	default:
 		break;
 	}
+
+	UpdateUniformGrid();
 }
 
 void Enemy::ChangeState(const State nxtState)
@@ -120,6 +124,29 @@ void Enemy::TickFixed(float deltaTime)
 	Destroy();
 }
 
+void Enemy::UpdateUniformGrid()
+{
+	GameLevel* level = GetOwner()->As<GameLevel>();
+	if (hasFixed)
+	{
+		level->RemoveActorInUniformGrid(cellPos, this);
+		return;
+	}
+
+	static const int cellSize = level->GetCellSize();
+
+	Vector2<int> pos{ GetPosition() };
+	pos.x /= cellSize;
+	pos.y /= cellSize;
+	if (pos == cellPos)
+	{
+		return;
+	}
+
+	level->RemoveActorInUniformGrid(cellPos, this);
+	level->InsertActorInUniformGrid(pos, this);
+}
+
 void Enemy::Attack()
 {
 	PlayBackColorAnimation(enemyData.attackAnimSeq);
@@ -133,7 +160,6 @@ void Enemy::Damaged(const int damage)
 	if (enemyData.health <= 0)
 	{
 		hasFixed = true;
-		// todo: update uniform grid
 		ChangeState(State::Fixed);
 	}
 }

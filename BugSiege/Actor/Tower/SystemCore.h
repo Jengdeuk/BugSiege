@@ -6,9 +6,12 @@ class SystemCore : public Tower
 {
 	RTTI_DECLARATIONS(SystemCore, Tower)
 
-public:
+private:
+	virtual void TickAttack(float deltaTime) override {}
+
+private:
 	virtual void Damaged(const int damage) override;
 
 private:
-	virtual void UpdateGridForNavigation() override;
+	virtual void UpdateGridsForNavigation() override;
 };

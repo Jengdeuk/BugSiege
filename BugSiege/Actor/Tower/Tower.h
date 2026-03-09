@@ -2,6 +2,8 @@
 
 #include "Actor/Actor.h"
 
+#include <vector>
+
 using namespace JD;
 
 class Tower : public Actor
@@ -24,7 +26,7 @@ class Tower : public Actor
 	enum class State
 	{
 		Build,
-		Idle,
+		Attack,
 		Collapsed,
 		Count
 	};
@@ -39,12 +41,13 @@ public:
 
 protected:
 	virtual void TickBuild(float deltaTime);
-	virtual void TickIdle(float deltaTime) {}
+	virtual void TickAttack(float deltaTime);
 	virtual void TickCollapsed(float deltaTime);
 
 public:
+	virtual void Attack();
 	virtual void Damaged(const int damage);
-	virtual void UpdateGridForNavigation() = 0;
+	virtual void UpdateGridsForNavigation() = 0;
 
 public:
 	inline bool HasBuilt() const { return hasBuilt; }
@@ -58,4 +61,10 @@ private:
 	bool hasBuilt = false;
 	bool hasCollapsed = false;
 	State curState = State::Count;
+
+private:
+	Timer attackTimer;
+
+protected:
+	std::vector<Actor*> targets;
 };

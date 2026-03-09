@@ -72,6 +72,9 @@
     <ClCompile Include="Actor\Enemy\Bug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Partition\UniformGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Game.h">
@@ -132,6 +135,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Actor\Enemy\Bug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Partition\UniformGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Partition\Bounds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

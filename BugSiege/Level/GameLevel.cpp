@@ -7,6 +7,7 @@
 
 #include "Game/Game.h"
 #include "Physics/PhysicsManager.h"
+#include "Partition/UniformGrid.h"
 #include "Partition/QuadTree.h"
 
 #include "Actor/ObjectPool.h"
@@ -98,7 +99,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{
-		1, 1, 1, 4.0f, 0.25f,
+		1, 10, 1, 4.0f, 0.25f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -106,7 +107,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{
-		2, 2, 1, 6.0f, 0.25f,
+		2, 20, 1, 6.0f, 0.25f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -114,7 +115,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{
-		3, 3, 3, 3.0f, 3.0f,
+		3, 30, 3, 3.0f, 3.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -122,7 +123,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{
-		4, 4, 1, 5.0f, 5.0f,
+		4, 40, 1, 5.0f, 5.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -130,7 +131,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{
-		5, 5, 1, 4.0f, 1.0f,
+		5, 50, 1, 4.0f, 1.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -234,7 +235,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	{  },
 
 	{
-		5, 1, 1, 2.1f, 1.0f, 3.5f,
+		5, 30, 10, 2.1f, 1.0f, 3.5f,
 		ANIMSEQ(occurAnimSeqSegfault),
 		ANIMSEQ(attackAnimSeqSegfault),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -260,6 +261,8 @@ void GameLevel::Initialize()
 	dangerGrid.assign(gridSize.y, std::vector<int>(gridSize.x, 0));
 	wallGrid.assign(gridSize.y, std::vector<bool>(gridSize.x, false));
 	flowGrid.assign(gridSize.y, std::vector<Vector2<int>>(gridSize.x, Vector2<int>()));
+	cellSize = 8;
+	uniformGrid = std::make_unique<UniformGrid>(cellSize);
 	quadTree = std::make_unique<QuadTree>();
 
 	// Player
@@ -304,25 +307,25 @@ void GameLevel::Tick(float deltaTime)
 	if (Input::Instance().GetMouseButtonDown(1))
 	{
 		// Spawn Bug
-		//{
-		//	const int typeIdx = static_cast<int>(EnemyType::Bug);
-		//	std::unique_ptr<Enemy> newEnemy = bugPool->Acquire();
-		//	Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
-		//	actorData.position = Input::Instance().MouseWorldPosition();
-		//	newEnemy->As<Actor>()->Initialize(actorData);
-		//	newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
-		//	AddNewActor(std::move(newEnemy));
-		//}
-		// Spawn Segfault
 		{
-			const int typeIdx = static_cast<int>(EnemyType::Segfault);
-			std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+			const int typeIdx = static_cast<int>(EnemyType::Bug);
+			std::unique_ptr<Enemy> newEnemy = bugPool->Acquire();
 			Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
 			actorData.position = Input::Instance().MouseWorldPosition();
 			newEnemy->As<Actor>()->Initialize(actorData);
 			newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
 			AddNewActor(std::move(newEnemy));
 		}
+		// Spawn Segfault
+		//{
+		//	const int typeIdx = static_cast<int>(EnemyType::Segfault);
+		//	std::unique_ptr<Enemy> newEnemy = segfaultPool->Acquire();
+		//	Actor::ActorData actorData{ enemyInitActorData[typeIdx] };
+		//	actorData.position = Input::Instance().MouseWorldPosition();
+		//	newEnemy->As<Actor>()->Initialize(actorData);
+		//	newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
+		//	AddNewActor(std::move(newEnemy));
+		//}
 		return;
 	}
 
@@ -436,11 +439,11 @@ void GameLevel::UpdateGridsForNavigation(const TowerType& type, const Vector2<in
 		}
 	}
 
-	// Flow Field
+	// Flow Grid
 	UpdateFlowGridByBFS();
 }
 
-std::vector<Actor*> GameLevel::QueryActorsInRange(const Bounds& bounds)
+std::vector<Actor*> GameLevel::QueryActorsInQuadTree(const Bounds& bounds)
 {
 	return quadTree->Query(bounds);
 }
@@ -448,6 +451,21 @@ std::vector<Actor*> GameLevel::QueryActorsInRange(const Bounds& bounds)
 void GameLevel::RemoveActorInQuadTree(Actor* actor)
 {
 	quadTree->Remove(actor);
+}
+
+std::vector<Actor*> GameLevel::QueryActorsInUniformGrid(const Vector2<int>& pos, const float r)
+{
+	return uniformGrid->Query(pos, r);
+}
+
+void GameLevel::InsertActorInUniformGrid(const Vector2<int>& cellPos, Actor* actor)
+{
+	uniformGrid->Insert(cellPos, actor);
+}
+
+void GameLevel::RemoveActorInUniformGrid(const Vector2<int>& cellPos, Actor* actor)
+{
+	uniformGrid->Remove(cellPos, actor);
 }
 
 const Tower::TowerData& GameLevel::GetTowerInitData(const TowerType& type) const
@@ -532,7 +550,7 @@ void GameLevel::DrawBorderLine()
 
 void GameLevel::UpdateFlowGridByBFS()
 {
-	using p = std::pair<float, Vector2<int>>;
+	using p = std::pair<int, Vector2<int>>;
 
 	for (auto& row : flowGrid)
 	{
@@ -542,25 +560,24 @@ void GameLevel::UpdateFlowGridByBFS()
 		}
 	}
 
-	static const float inf = FLT_MAX;
-	static const float diagonalCst = 1.41421356f;
-	static const int dx[] = { -1, 0, 1, 0, -1, 1, -1, 1 };
-	static const int dy[] = { 0, -1, 0, 1, -1, -1, 1, 1 };
+	static const int inf = INT_MAX;
+	static const int dx[] = { -1, 0, 1, 0 };
+	static const int dy[] = { 0, -1, 0, 1 };
 
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
-	std::vector<std::vector<float>> distGrid(gridSize.y, std::vector<float>(gridSize.x, inf));
+	std::vector<std::vector<int>> distGrid(gridSize.y, std::vector<int>(gridSize.x, inf));
 
 	std::queue<p> q;
 	for (SystemCore* systemCore : systemCores)
 	{
 		Vector2<int> pos{ systemCore->GetPosition() };
-		distGrid[pos.y][pos.x] = 0.0f;
-		q.emplace(0.0f, pos);
+		distGrid[pos.y][pos.x] = 0;
+		q.emplace(0, pos);
 	}
 
 	while (!q.empty())
 	{
-		float dist = q.front().first;
+		int dist = q.front().first;
 		Vector2<int> pos = q.front().second;
 		q.pop();
 
@@ -569,21 +586,16 @@ void GameLevel::UpdateFlowGridByBFS()
 			continue;
 		}
 
-		for (int i = 0; i < 8; ++i)
+		for (int i = 0; i < 4; ++i)
 		{
 			int nx = pos.x + dx[i];
 			int ny = pos.y + dy[i];
-			if (nx < 0 || nx >= gridSize.x || ny < 0 || ny >= gridSize.y)
-			{
-				continue;
-			}
-
-			if (wallGrid[ny][nx] || (wallGrid[ny][pos.x] && wallGrid[pos.y][nx]))
+			if (nx < 0 || nx >= gridSize.x || ny < 0 || ny >= gridSize.y || wallGrid[ny][nx])
 			{
 				continue;
 			}
 			
-			float ndist = dist + (i < 4 ? 1 : diagonalCst);
+			int ndist = dist + 1;
 			if (ndist < distGrid[ny][nx])
 			{
 				distGrid[ny][nx] = ndist;

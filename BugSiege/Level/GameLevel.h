@@ -21,6 +21,7 @@ class PlayerController;
 
 struct Bounds;
 class QuadTree;
+class UniformGrid;
 
 class SystemCore;
 class CompilerTurret;
@@ -48,11 +49,15 @@ public:
 	void DamagedSystemCore(const int damage);
 	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand = false);
 	void UpdateGridsForNavigation(const TowerType& type, const Vector2<int>& pos, const int value = 1);
-	std::vector<Actor*> QueryActorsInRange(const Bounds& bounds);
+	std::vector<Actor*> QueryActorsInQuadTree(const Bounds& bounds);
 	void RemoveActorInQuadTree(Actor* actor);
+	std::vector<Actor*> QueryActorsInUniformGrid(const Vector2<int>& pos, const float r);
+	void InsertActorInUniformGrid(const Vector2<int>& cellPos, Actor* actor);
+	void RemoveActorInUniformGrid(const Vector2<int>& cellPos, Actor* actor);
 
 public:
 	inline const Vector2<int>& GetMapSize() const { return mapSize; }
+	inline int GetCellSize() const { return cellSize; }
 	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
 	inline const std::vector<std::vector<int>>& GetDangerGrid() const { return dangerGrid; }
 	inline const std::vector<std::vector<bool>>& GetWallGrid() const { return wallGrid; }
@@ -83,7 +88,9 @@ private:
 
 // Partition
 private:
+	int cellSize = 0;
 	std::unique_ptr<QuadTree> quadTree;
+	std::unique_ptr<UniformGrid> uniformGrid;
 
 // ObjectPool
 private:

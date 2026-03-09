@@ -7,5 +7,6 @@ class CompilerTurret : public Tower
 	RTTI_DECLARATIONS(CompilerTurret, Tower)
 
 private:
-	virtual void UpdateGridForNavigation() override;
+	virtual void Attack() override;
+	virtual void UpdateGridsForNavigation() override;
 };

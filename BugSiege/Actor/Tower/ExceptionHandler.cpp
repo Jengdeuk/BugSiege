@@ -2,7 +2,7 @@
 
 #include "Level/GameLevel.h"
 
-void ExceptionHandler::UpdateGridForNavigation()
+void ExceptionHandler::UpdateGridsForNavigation()
 {
 	GetOwner()->As<GameLevel>()->UpdateGridsForNavigation(TowerType::ExceptionHandler, Vector2<int>(GetPosition()), -1);
 }
