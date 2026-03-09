@@ -63,7 +63,7 @@ void PlayerController::Draw()
 			int dy = y - cy;
 			if (dx * dx + dy * dy <= r * r)
 			{
-				Renderer::Instance().Submit(" ", { x, y }, WORD(Color::Blue) << 4, 1);
+				Renderer::Instance().Submit(".", { x, y }, WORD(Color::Blue), 1);
 			}
 		}
 	}

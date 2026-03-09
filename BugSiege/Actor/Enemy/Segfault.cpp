@@ -7,7 +7,7 @@
 #include "Partition/QuadNode.h"
 #include "Actor/Tower/SystemCore.h"
 
-static const int radius = 15;
+static const int radius = 30;
 static const int l = 2 * radius;
 
 Segfault::Segfault()

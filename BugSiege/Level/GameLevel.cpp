@@ -102,7 +102,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // CompilerTurret
-		1, 10, 1, 4.0f, 0.25f,
+		1, 10, 1, 4.5f, 0.5f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -110,7 +110,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // DebuggerNode
-		2, 20, 1, 6.0f, 0.25f,
+		2, 20, 1, 7.0f, 0.25f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -118,7 +118,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // GarbageCollector
-		3, 30, 3, 3.0f, 3.0f,
+		3, 30, 3, 3.5f, 3.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -126,7 +126,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // MutexBarrier
-		4, 40, 1, 5.0f, 5.0f,
+		4, 40, 1, 6.0f, 5.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -134,7 +134,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // ExceptionHandler
-		5, 50, 1, 4.0f, 1.0f,
+		5, 50, 1, 5.0f, 1.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -214,9 +214,9 @@ static const Actor::AnimFrame fixedAnimSeqSegfault[] =
 
 static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Count)] =
 {
-	{ "B", {}, Color::Red, Color::Black, 5 },
-	{ "W", {}, Color::Red, Color::Black, 6 },
-	{ "T", {}, Color::Red, Color::Black, 7 },
+	{ "b", {}, Color::Red, Color::Black, 5 },
+	{ "w", {}, Color::Red, Color::Black, 6 },
+	{ "t", {}, Color::Red, Color::Black, 7 },
 	{ "L", {}, Color::Red, Color::Black, 8 },
 	{ "S", {}, Color::Magenta, Color::Black, 9 }
 };
@@ -224,7 +224,7 @@ static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Cou
 static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Count)] =
 {
 	{ // Bug
-		1, 5, 5, 1, 1.1f, 1.2f, 5.0f,
+		1, 1, 5, 1, 1.15f, 1.2f, 6.0f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -232,7 +232,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // Worm
-		2, 8, 4, 1, 3.5f, 0.75f, 15.0f,
+		2, 2, 4, 1, 3.5f, 0.75f, 15.0f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -240,7 +240,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // Trojan
-		3, 12, 20, 5, 1.1f, 3.0f, 1.5f,
+		3, 3, 20, 5, 1.1f, 3.0f, 2.0f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -248,7 +248,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // MemoryLeak
-		4, 17, 8, 1, 5.1f, 3.0f, 5.0f,
+		4, 4, 8, 1, 5.1f, 3.0f, 4.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -256,7 +256,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // Segfault
-		5, 23, 30, 10, 2.1f, 3.0f, 3.5f,
+		5, 5, 30, 10, 2.1f, 0.35f, 7.0f,
 		ANIMSEQ(occurAnimSeqSegfault),
 		ANIMSEQ(attackAnimSeqSegfault),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -274,12 +274,12 @@ void GameLevel::Initialize()
 {
 	isGameOver = false;
 	integrity = 100;
-	cpu = 5;
+	cpu = 10;
 	survivalTime = 0.0f;
 	lastDeltaTime = 0.0f;
 
 	regenTime = 5.0f;
-	regenCount = 3.0f;
+	regenCount = 5.0f;
 	regenTimer.Reset();
 	regenTimer.SetTargetTime(regenTime);
 
@@ -452,7 +452,10 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	UpdateGridsForNavigation(type, pos, 1);
 
 	// Insert Tower to QuadTree
-	quadTree->Insert(towerActor);
+	if (type != TowerType::SystemCore)
+	{
+		quadTree->Insert(towerActor);
+	}
 
 	cpu -= towerInitTowerData[typeIdx].tier;
 	
@@ -687,22 +690,22 @@ void GameLevel::Regen()
 		const float rx = Util::Randomf(0.0f, gridSize.x -1.0f);
 		const float ry = Util::Randomf(0.0f, gridSize.y -1.0f);
 
-		if (rv >= 80.0f)
+		if (rv >= 75.0f)
 		{
 			typeIdx = static_cast<int>(EnemyType::Bug);
 			newEnemy = bugPool->Acquire();
 		}
-		else if (rv >= 60.0f)
+		else if (rv >= 50.0f)
 		{
 			typeIdx = static_cast<int>(EnemyType::Worm);
 			newEnemy = wormPool->Acquire();
 		}
-		else if (rv >= 40.0f)
+		else if (rv >= 30.0f)
 		{
 			typeIdx = static_cast<int>(EnemyType::Trojan);
 			newEnemy = trojanPool->Acquire();
 		}
-		else if (rv >= 20.0f)
+		else if (rv >= 10.0f)
 		{
 			typeIdx = static_cast<int>(EnemyType::MemoryLeak);
 			newEnemy = memoryLeakPool->Acquire();
@@ -724,8 +727,9 @@ void GameLevel::Regen()
 void GameLevel::LevelUp()
 {
 	++level;
-	regenTime *= 0.9f;
-	regenCount *= 1.5f;
+
+	//regenTime *= 0.9f;
+	regenCount *= 1.2f;
 
 	regenTimer.Reset();
 	regenTimer.SetTargetTime(regenTime);
