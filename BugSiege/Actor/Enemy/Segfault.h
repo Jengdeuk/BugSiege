@@ -29,6 +29,7 @@ private:
 
 private:
 	virtual void Damaged(const int damage) override;
+	virtual void Stunned() override {}
 
 private:
 	bool IsTargetValid();

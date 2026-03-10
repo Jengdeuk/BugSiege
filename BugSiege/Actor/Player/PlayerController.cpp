@@ -16,7 +16,7 @@ void PlayerController::BeginPlay()
 { 
 	Super::BeginPlay();
 
-	camera = std::make_unique<Camera>(100.0f);
+	camera = std::make_unique<Camera>(50.0f);
 }
 
 void PlayerController::Tick(float deltaTime)
@@ -140,23 +140,26 @@ void PlayerController::InputCameraMovement(float deltaTime)
 
 	Vector2<float> moveDirection;
 
+	const int offSetX = 35;
+	const int offSetY = 15;
+
 	bool isMove = false;
-	if (Input::Instance().GetKey('D') || mousePos.x >= mapSize.x - 1)
+	if (Input::Instance().GetKey('D') || mousePos.x >= mapSize.x - 1 - offSetX)
 	{
 		isMove = true;
 		moveDirection.x = 1;
 	}
-	if (Input::Instance().GetKey('A') || mousePos.x <= 0)
+	if (Input::Instance().GetKey('A') || mousePos.x <= 0 + offSetX)
 	{
 		isMove = true;
 		moveDirection.x = -1;
 	}
-	if (Input::Instance().GetKey('W') || mousePos.y <= 9)
+	if (Input::Instance().GetKey('W') || mousePos.y <= 9 + offSetY)
 	{
 		isMove = true;
 		moveDirection.y = 1;
 	}
-	if (Input::Instance().GetKey('S') || mousePos.y >= mapSize.y + 9)
+	if (Input::Instance().GetKey('S') || mousePos.y >= mapSize.y + 9 - offSetY)
 	{
 		isMove = true;
 		moveDirection.y = -1;

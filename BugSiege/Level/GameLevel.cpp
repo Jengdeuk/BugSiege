@@ -47,16 +47,16 @@ static const Actor::AnimFrame damagedAnimSeqRGB[] =
 
 static const Actor::AnimFrame buildAnimSeqTower[] =
 {
-	{ 0.25f, "_", Color::Green, Color::Black },
-	{ 0.25f, "=", Color::Green, Color::Black },
-	{ 0.25f, " ", Color::Black, Color::Green }
+	{ 0.08f, "_", Color::Green, Color::Black },
+	{ 0.08f, "=", Color::Green, Color::Black },
+	{ 0.08f, " ", Color::Black, Color::Green }
 };
 
 static const Actor::AnimFrame buildAnimSeqSystemCore[] =
 {
-	{ 0.25f, "_", Color::Cyan, Color::Black },
-	{ 0.25f, "=", Color::Cyan, Color::Black },
-	{ 0.25f, " ", Color::Black, Color::Cyan }
+	{ 0.08f, "_", Color::Cyan, Color::Black },
+	{ 0.08f, "=", Color::Cyan, Color::Black },
+	{ 0.08f, " ", Color::Black, Color::Cyan }
 };
 
 static const Actor::AnimFrame attackAnimSeqTower[] =
@@ -363,6 +363,11 @@ void GameLevel::Tick(float deltaTime)
 	{
 		Game::Instance().ToggleMenu();
 		return;
+	}
+
+	if (Input::Instance().GetKeyDown('7'))
+	{
+		GainCPU(100);
 	}
 
 	if (Input::Instance().GetKeyDown('0'))
@@ -684,7 +689,7 @@ void GameLevel::DrawHUD()
 	if (isGameOver)
 	{
 		Renderer::Instance().Submit("SYSTEM CORE DESTROYED!", Vector2<int>(screenX / 2 - 11, screenY / 2 - 1), Color::Red, 20);
-		Renderer::Instance().Submit("[R]Retry [Q]Quit", Vector2<int>(screenX / 2 - 8, screenY / 2), Color::Gray, 20);
+		Renderer::Instance().Submit("[R]etry [Q]uit", Vector2<int>(screenX / 2 - 8, screenY / 2), Color::Gray, 20);
 	}
 
 	DrawBorderLine();

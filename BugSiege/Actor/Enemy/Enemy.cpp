@@ -1,5 +1,6 @@
 #include "Enemy.h"
 
+#include "Util/Util.h"
 #include "Level/GameLevel.h"
 #include "Physics/Collision.h"
 #include "Actor/Tower/SystemCore.h"
@@ -140,7 +141,7 @@ void Enemy::TickStunned(float deltaTime)
 		return;
 	}
 
-	ChangeState(State::Search);
+	ChangeState(State::Trace);
 }
 
 void Enemy::TickFixed(float deltaTime)
@@ -190,7 +191,11 @@ void Enemy::Damaged(const int damage)
 	if (enemyData.health <= 0)
 	{
 		hasFixed = true;
-		GetOwner()->As<GameLevel>()->GainCPU(enemyData.cpu);
+		const float rv = Util::Randomf(0.0f, 100.0f);
+		if (rv >= 35.0f)
+		{
+			GetOwner()->As<GameLevel>()->GainCPU(enemyData.cpu);
+		}
 		ChangeState(State::Fixed);
 	}
 }
