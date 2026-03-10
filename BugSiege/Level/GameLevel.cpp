@@ -113,7 +113,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // DebuggerNode
-		2, 10, 1, 8.0f, 0.5f,
+		2, 20, 1, 8.0f, 0.5f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -121,7 +121,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // GarbageCollector
-		3, 10, 3, 4.5f, 3.0f,
+		3, 30, 3, 4.5f, 3.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
