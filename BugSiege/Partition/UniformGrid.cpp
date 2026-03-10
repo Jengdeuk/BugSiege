@@ -40,13 +40,13 @@ std::vector<Actor*> UniformGrid::Query(const Vector2<int>& pos, const float r)
 
 	const int cx = pos.x;
 	const int cy = pos.y;
-	const int sx = static_cast<int>(std::round(cx - r));
-	const int ex = static_cast<int>(std::round(cx + r));
-	const int sy = static_cast<int>(std::round(cy - r));
-	const int ey = static_cast<int>(std::round(cy + r));
-	for (int y = (sy) / cellSize; y <= (ey) / cellSize; ++y)
+	const int sx = static_cast<int>(std::round(cx - r)) / cellSize;
+	const int ex = static_cast<int>(std::round(cx + r)) / cellSize;
+	const int sy = static_cast<int>(std::round(cy - r)) / cellSize;
+	const int ey = static_cast<int>(std::round(cy + r)) / cellSize;
+	for (int y = sy; y <= ey; ++y)
 	{
-		for (int x = (sx) / cellSize; x <= (ex) / cellSize; ++x)
+		for (int x = sx; x <= ex; ++x)
 		{
 			if (x < 0 || x >= gridSize.x / cellSize || y < 0 || y >= gridSize.y / cellSize)
 			{

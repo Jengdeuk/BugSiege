@@ -312,6 +312,8 @@ void GameLevel::Initialize()
 	regenTimer.SetTargetTime(regenTime);
 
 	level = 1;
+	segfaultCount = 0;
+	maxSegfaultCount = 5;
 	levelUpTime = 15.0f;
 	levelUpTimer.Reset();
 	levelUpTimer.SetTargetTime(levelUpTime);
@@ -336,19 +338,19 @@ void GameLevel::Initialize()
 	AddNewActor(std::move(newPlayerController));
 
 	// Object Pool
-	systemCorePool = std::make_unique<ObjectPool<SystemCore>>();
-	compilerTurretPool = std::make_unique<ObjectPool<CompilerTurret>>();
-	debuggerNodePool = std::make_unique<ObjectPool<DebuggerNode>>();
-	garbageCollectorPool = std::make_unique<ObjectPool<GarbageCollector>>();
-	mutexBarrierPool = std::make_unique<ObjectPool<MutexBarrier>>();
-	exceptionHandlerPool = std::make_unique<ObjectPool<ExceptionHandler>>();
-	bugPool = std::make_unique<ObjectPool<Bug>>();
-	wormPool = std::make_unique<ObjectPool<Worm>>();
-	trojanPool = std::make_unique<ObjectPool<Trojan>>();
-	memoryLeakPool = std::make_unique<ObjectPool<MemoryLeak>>();
-	memoryLeakSmallPool = std::make_unique<ObjectPool<MemoryLeakSmall>>();
-	segfaultPool = std::make_unique<ObjectPool<Segfault>>();
-	explosionEffectPool = std::make_unique<ObjectPool<ExplosionEffect>>();
+	systemCorePool = std::make_unique<ObjectPool<SystemCore>>(20);
+	compilerTurretPool = std::make_unique<ObjectPool<CompilerTurret>>(20);
+	debuggerNodePool = std::make_unique<ObjectPool<DebuggerNode>>(20);
+	garbageCollectorPool = std::make_unique<ObjectPool<GarbageCollector>>(20);
+	mutexBarrierPool = std::make_unique<ObjectPool<MutexBarrier>>(20);
+	exceptionHandlerPool = std::make_unique<ObjectPool<ExceptionHandler>>(20);
+	bugPool = std::make_unique<ObjectPool<Bug>>(20);
+	wormPool = std::make_unique<ObjectPool<Worm>>(20);
+	trojanPool = std::make_unique<ObjectPool<Trojan>>(20);
+	memoryLeakPool = std::make_unique<ObjectPool<MemoryLeak>>(20);
+	memoryLeakSmallPool = std::make_unique<ObjectPool<MemoryLeakSmall>>(20);
+	segfaultPool = std::make_unique<ObjectPool<Segfault>>(20);
+	explosionEffectPool = std::make_unique<ObjectPool<ExplosionEffect>>(20);
 
 	// System Core
 	float centerX = static_cast<float>((gridSize.x - 1) / 2);
@@ -882,8 +884,9 @@ void GameLevel::Regen()
 		}
 		else
 		{
-			if (level >= 5)
+			if (level >= 5 && segfaultCount < maxSegfaultCount)
 			{
+				++segfaultCount;
 				typeIdx = static_cast<int>(EnemyType::Segfault);
 				newEnemy = segfaultPool->Acquire();
 			}

@@ -7,7 +7,7 @@
 #include "Partition/QuadNode.h"
 #include "Actor/Tower/SystemCore.h"
 
-static const int radius = 20;
+static const int radius = 15;
 static const int l = 2 * radius;
 
 Segfault::Segfault()
@@ -160,6 +160,7 @@ void Segfault::Damaged(const int damage)
 
 	if (HasFixed())
 	{
+		GetOwner()->As<GameLevel>()->SetSegfaultCount();
 		path.clear();
 	}
 }
