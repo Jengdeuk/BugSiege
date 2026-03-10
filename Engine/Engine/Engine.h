@@ -36,6 +36,10 @@ namespace JD
 		void Run();
 		void QuitEngine();
 		void SetNewLevel(Level* newLevel);
+		inline void SetTimeScale(float scale) { timeScale = scale; }
+		inline float GetTimeScale() const { return timeScale; }
+
+	public:
 		inline const Vector2<int> GetScreenSize() const { return Vector2<int>(setting.screenW, setting.screenH); }
 		inline const Vector2<int> GetMapStartPos() const { return Vector2<int>(setting.mapSX, setting.mapSY); }
 		inline const Vector2<int> GetMapSize() const { return Vector2<int>(setting.mapW, setting.mapH); }
@@ -48,9 +52,9 @@ namespace JD
 
 	private:
 		void LoadSetting();
-		void Shutdown();
 
 	private:
+		float timeScale = 0.0f;
 		bool isQuit = false;
 		Level* mainLevel = nullptr;
 		EngineSetting setting{};

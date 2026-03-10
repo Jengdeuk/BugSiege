@@ -167,6 +167,6 @@ void PlayerController::InputCameraMovement(float deltaTime)
 
 	if (isMove)
 	{
-		camera->Move(moveDirection.Normalized(), deltaTime);
+		camera->Move(moveDirection.Normalized(), deltaTime / Engine::Instance().GetTimeScale());
 	}
 }

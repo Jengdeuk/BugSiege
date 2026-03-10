@@ -92,6 +92,7 @@ private:
 	int cpu = 0;
 	float survivalTime = 0.0f;
 	float lastDeltaTime = 0.0f;
+	int timeScaleIdx = 0;
 	PlayerController* playerController = nullptr;
 	std::vector<SystemCore*> systemCores;
 
@@ -144,6 +145,7 @@ private:
 	char bufferCPU[10] = {};
 	char bufferLevel[10] = {};
 	char bufferStime[20] = {};
+	char bufferTimeScale[20] = {};
 	char bufferCamPos[20] = {};
 	char bufferMousePos[20] = {};
 	char bufferFPS[10] = {};

@@ -33,6 +33,8 @@
 
 using namespace JD;
 
+static const float timeScales[] = { 0.25f, 0.5f, 1.0f, 2.0f, 4.0f };
+
 static const float stunnedTime = 1.0f;
 
 static const Actor::AnimFrame damagedAnimSeqRGB[] =
@@ -300,6 +302,8 @@ void GameLevel::Initialize()
 	cpu = 10;
 	survivalTime = 0.0f;
 	lastDeltaTime = 0.0f;
+	timeScaleIdx = 2;
+	Engine::Instance().SetTimeScale(timeScales[timeScaleIdx]);
 
 	regenTime = 5.0f;
 	regenCount = 1.0f;
@@ -373,6 +377,25 @@ void GameLevel::Tick(float deltaTime)
 	if (Input::Instance().GetKeyDown('0'))
 	{
 		isDrawDebugQuadTree = !isDrawDebugQuadTree;
+		return;
+	}
+
+	if (Input::Instance().GetKeyDown('O'))
+	{
+		if (--timeScaleIdx < 0)
+		{
+			timeScaleIdx = 0;
+		}
+		Engine::Instance().SetTimeScale(timeScales[timeScaleIdx]);
+		return;
+	}
+	else if (Input::Instance().GetKeyDown('P'))
+	{
+		if (++timeScaleIdx == 5)
+		{
+			timeScaleIdx = 4;
+		}
+		Engine::Instance().SetTimeScale(timeScales[timeScaleIdx]);
 		return;
 	}
 
@@ -628,14 +651,19 @@ void GameLevel::DrawHUD()
 	static const int screenY = Engine::Instance().GetScreenSize().y;
 
 	// wave
-	Renderer::Instance().Submit("WAVE: ", Vector2<int>(screenX - 21, 2), Color::White);
+	Renderer::Instance().Submit("WAVE: ", Vector2<int>(screenX - 34, 2), Color::White);
 	sprintf_s(bufferLevel, "%02d", level);
-	Renderer::Instance().Submit(bufferLevel, Vector2<int>(screenX - 15, 2), Color::Red);
+	Renderer::Instance().Submit(bufferLevel, Vector2<int>(screenX - 28, 2), Color::Red);
 
 	// time
-	Renderer::Instance().Submit("TIME: ", Vector2<int>(screenX - 12, 2), Color::White);
+	Renderer::Instance().Submit("TIME: ", Vector2<int>(screenX - 25, 2), Color::White);
 	sprintf_s(bufferStime, "%02d:%02d", static_cast<int>(survivalTime / 60), static_cast<int>(survivalTime) % 60);
-	Renderer::Instance().Submit(bufferStime, Vector2<int>(screenX - 6, 2), Color::Gray);
+	Renderer::Instance().Submit(bufferStime, Vector2<int>(screenX - 19, 2), Color::Gray);
+
+	// time scale
+	Renderer::Instance().Submit("SPEED: ", Vector2<int>(screenX - 13, 2), Color::White);
+	sprintf_s(bufferTimeScale, "x%g", timeScales[timeScaleIdx]);
+	Renderer::Instance().Submit(bufferTimeScale, Vector2<int>(screenX - 6, 2), Color::Gray);
 
 	// integrity
 	Renderer::Instance().Submit("INTEGRITY: ", Vector2<int>(1, 2), Color::White);

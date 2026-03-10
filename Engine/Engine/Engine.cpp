@@ -47,13 +47,14 @@ namespace JD
 
 		setting.frameRate = (setting.frameRate == 0.0f ? 60.0f : setting.frameRate);
 
+		timeScale = 1.0f;
 		float oneFrameTime = 1.0f / setting.frameRate;
 		while (isQuit == false)
 		{
 			QueryPerformanceCounter(&time);
 			currentTime = time.QuadPart;
 
-			float deltaTime = static_cast<float>(currentTime - previousTime) / frequency.QuadPart;
+			float deltaTime = static_cast<float>(currentTime - previousTime) / frequency.QuadPart * timeScale;
 			if (deltaTime >= oneFrameTime)
 			{
 				Input::Instance().ProcessInput();
@@ -70,8 +71,6 @@ namespace JD
 				}
 			}
 		}
-
-		Shutdown();
 	}
 
 	void Engine::QuitEngine()
@@ -182,9 +181,5 @@ namespace JD
 		}
 
 		fclose(file);
-	}
-
-	void Engine::Shutdown()
-	{
 	}
 }
