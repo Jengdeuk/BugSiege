@@ -24,13 +24,16 @@
 #include "Actor/Enemy/Worm.h"
 #include "Actor/Enemy/Trojan.h"
 #include "Actor/Enemy/MemoryLeak.h"
+#include "Actor/Enemy/MemoryLeakSmall.h"
 #include "Actor/Enemy/Segfault.h"
+
+#include "Actor/Effect/ExplosionEffect.h"
 
 #include <queue>
 
 using namespace JD;
 
-#define ANIMSEQ(seq) { seq, _countof(seq) }
+static const float stunnedTime = 1.0f;
 
 static const Actor::AnimFrame damagedAnimSeqRGB[] =
 {
@@ -39,12 +42,7 @@ static const Actor::AnimFrame damagedAnimSeqRGB[] =
 	{ 0.06f, {}, Color::Green, {} },
 	{ 0.06f, {}, Color::White, {} },
 	{ 0.06f, {}, Color::Blue, {} },
-	{ 0.06f, {}, Color::White, {} },
-	{ 0.06f, {}, Color::Red, {} },
-	{ 0.06f, {}, Color::White, {} },
-	{ 0.06f, {}, Color::Green, {} },
-	{ 0.06f, {}, Color::White, {} },
-	{ 0.06f, {}, Color::Blue, {} }
+	{ 0.06f, {}, Color::White, {} }
 };
 
 static const Actor::AnimFrame buildAnimSeqTower[] =
@@ -64,6 +62,11 @@ static const Actor::AnimFrame buildAnimSeqSystemCore[] =
 static const Actor::AnimFrame attackAnimSeqTower[] =
 {
 	{ 0.1f, {}, {}, Color::DarkBlue }
+};
+
+static const Actor::AnimFrame attackAnimSeqMutexBarrier[] =
+{
+	{ stunnedTime, {}, {}, Color::DarkBlue }
 };
 
 static const Actor::AnimFrame collapsedAnimSeqTower[] =
@@ -102,7 +105,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // CompilerTurret
-		1, 10, 1, 4.5f, 0.5f,
+		1, 10, 1, 5.0f, 0.3f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -110,7 +113,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // DebuggerNode
-		2, 20, 1, 7.0f, 0.25f,
+		2, 10, 1, 8.0f, 0.5f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -118,7 +121,7 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // GarbageCollector
-		3, 30, 3, 3.5f, 3.0f,
+		3, 10, 3, 4.5f, 3.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -126,15 +129,15 @@ static const Tower::TowerData towerInitTowerData[static_cast<int>(TowerType::Cou
 	},
 	
 	{ // MutexBarrier
-		4, 40, 1, 6.0f, 5.0f,
+		4, 40, 1, 7.0f, 2.5f,
 		ANIMSEQ(buildAnimSeqTower),
-		ANIMSEQ(attackAnimSeqTower),
+		ANIMSEQ(attackAnimSeqMutexBarrier),
 		ANIMSEQ(damagedAnimSeqRGB),
 		ANIMSEQ(collapsedAnimSeqTower)
 	},
 	
 	{ // ExceptionHandler
-		5, 50, 1, 5.0f, 1.0f,
+		5, 50, 10, 5.0f, 2.0f,
 		ANIMSEQ(buildAnimSeqTower),
 		ANIMSEQ(attackAnimSeqTower),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -182,6 +185,11 @@ static const Actor::AnimFrame attackAnimSeqSegfault[] =
 	{ 0.1f, {}, {}, Color::DarkMagenta }
 };
 
+static const Actor::AnimFrame stunnedAnimSeqEnemy[] =
+{
+	{ stunnedTime, {}, {}, Color::DarkYellow }
+};
+
 static const Actor::AnimFrame fixedAnimSeqEnemy[] =
 {
 	{ 0.06f, " ", Color::Black, Color::Red },
@@ -218,48 +226,63 @@ static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Cou
 	{ "w", {}, Color::Red, Color::Black, 6 },
 	{ "t", {}, Color::Red, Color::Black, 7 },
 	{ "L", {}, Color::Red, Color::Black, 8 },
+	{ "l", {}, Color::Red, Color::Black, 8 },
 	{ "S", {}, Color::Magenta, Color::Black, 9 }
 };
 
 static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Count)] =
 {
 	{ // Bug
-		1, 1, 5, 1, 1.15f, 1.2f, 6.0f,
+		1, 1, 7, 2, 1.15f, 1.2f, 6.0f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(stunnedAnimSeqEnemy),
 		ANIMSEQ(fixedAnimSeqEnemy)
 	},
 
 	{ // Worm
-		2, 2, 4, 1, 3.5f, 0.75f, 15.0f,
+		2, 1, 10, 1, 3.5f, 0.75f, 15.0f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(stunnedAnimSeqEnemy),
 		ANIMSEQ(fixedAnimSeqEnemy)
 	},
 
 	{ // Trojan
-		3, 3, 20, 5, 1.1f, 3.0f, 2.0f,
+		3, 2, 50, 5, 1.1f, 1.5f, 3.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(stunnedAnimSeqEnemy),
 		ANIMSEQ(fixedAnimSeqEnemy)
 	},
 
 	{ // MemoryLeak
-		4, 4, 8, 1, 5.1f, 3.0f, 4.5f,
+		4, 2, 13, 3, 1.15f, 1.0f, 4.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(stunnedAnimSeqEnemy),
+		ANIMSEQ(fixedAnimSeqEnemy)
+	},
+
+	{ // MemoryLeakSmall
+		4, 1, 13, 3, 1.15f, 1.0f, 4.5f,
+		ANIMSEQ(occurAnimSeqEnemy),
+		ANIMSEQ(attackAnimSeqEnemy),
+		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(stunnedAnimSeqEnemy),
 		ANIMSEQ(fixedAnimSeqEnemy)
 	},
 
 	{ // Segfault
-		5, 5, 30, 10, 2.1f, 0.35f, 7.0f,
+		5, 5, 50, 10, 2.1f, 0.35f, 7.0f,
 		ANIMSEQ(occurAnimSeqSegfault),
 		ANIMSEQ(attackAnimSeqSegfault),
 		ANIMSEQ(damagedAnimSeqRGB),
+		ANIMSEQ(stunnedAnimSeqEnemy),
 		ANIMSEQ(fixedAnimSeqSegfault)
 	}
 };
@@ -279,7 +302,8 @@ void GameLevel::Initialize()
 	lastDeltaTime = 0.0f;
 
 	regenTime = 5.0f;
-	regenCount = 5.0f;
+	regenCount = 1.0f;
+	regenRadius = 10.0f;
 	regenTimer.Reset();
 	regenTimer.SetTargetTime(regenTime);
 
@@ -314,7 +338,9 @@ void GameLevel::Initialize()
 	wormPool = std::make_unique<ObjectPool<Worm>>();
 	trojanPool = std::make_unique<ObjectPool<Trojan>>();
 	memoryLeakPool = std::make_unique<ObjectPool<MemoryLeak>>();
+	memoryLeakSmallPool = std::make_unique<ObjectPool<MemoryLeakSmall>>();
 	segfaultPool = std::make_unique<ObjectPool<Segfault>>();
+	explosionEffectPool = std::make_unique<ObjectPool<ExplosionEffect>>();
 
 	// System Core
 	float centerX = static_cast<float>((gridSize.x - 1) / 2);
@@ -394,6 +420,33 @@ void GameLevel::GainCPU(const int amount)
 	cpu += amount;
 }
 
+void GameLevel::SummonMemoryLeakSmalls(const Vector2<float>& pos)
+{
+	int typeIdx = static_cast<int>(EnemyType::MemoryLeakSmall);
+	std::unique_ptr<Enemy> newEnemy;
+	Actor::ActorData actorData;
+	for (int i = 0; i < 2; ++i)
+	{
+		newEnemy = memoryLeakSmallPool->Acquire();
+		actorData = enemyInitActorData[typeIdx];
+		actorData.position.x = pos.x + (i == 0 ? -0.5f : 0.5f);
+		actorData.position.y = pos.y + (i == 0 ? 0.5f : -0.5f);
+		newEnemy->As<Actor>()->Initialize(actorData);
+		newEnemy->Initialize(enemyInitEnemyData[typeIdx]);
+		AddNewActor(std::move(newEnemy));
+	}
+}
+
+void GameLevel::SummonExplosionEffect(const Vector2<float>& pos)
+{
+	std::unique_ptr<ExplosionEffect> effect = explosionEffectPool->Acquire();
+	Actor::ActorData actorData;
+	actorData.position = pos;
+	actorData.sortingOrder = 4;
+	effect->As<Actor>()->Initialize(actorData);
+	AddNewActor(std::move(effect));
+}
+
 bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand)
 {
 	const int typeIdx = static_cast<int>(type);
@@ -452,10 +505,7 @@ bool GameLevel::BuildTowerToGround(const TowerType& type, const Vector2<float>& 
 	UpdateGridsForNavigation(type, pos, 1);
 
 	// Insert Tower to QuadTree
-	if (type != TowerType::SystemCore)
-	{
-		quadTree->Insert(towerActor);
-	}
+	quadTree->Insert(towerActor);
 
 	cpu -= towerInitTowerData[typeIdx].tier;
 	
@@ -469,10 +519,10 @@ void GameLevel::UpdateGridsForNavigation(const TowerType& type, const Vector2<in
 
 	// Danger Grid
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
-	const int r = static_cast<int>(towerInitTowerData[static_cast<int>(type)].radius);
-	for (int y = pos.y - r; y <= pos.y + r; ++y)
+	const float r = towerInitTowerData[static_cast<int>(type)].radius;
+	for (int y = static_cast<int>(std::round(pos.y - r)); y <= static_cast<int>(std::round(pos.y + r)); ++y)
 	{
-		for (int x = pos.x - r; x <= pos.x + r; ++x)
+		for (int x = static_cast<int>(std::round(pos.x - r)); x <= static_cast<int>(std::round(pos.x + r)); ++x)
 		{
 			if (x < 0 || x >= gridSize.x || y < 0 || y >= gridSize.y)
 			{
@@ -680,6 +730,9 @@ void GameLevel::Regen()
 {
 	static const Vector2<float> gridSize{ Engine::Instance().GetGridSize() };
 
+	const float cx = (gridSize.x - 1.0f) / 2.0f;
+	const float cy = (gridSize.y - 1.0f) / 2.0f;
+
 	int typeIdx;
 	std::unique_ptr<Enemy> newEnemy;
 	Actor::ActorData actorData;
@@ -687,8 +740,12 @@ void GameLevel::Regen()
 	for (int i = 0; i < regenCount; ++i)
 	{
 		const float rv = Util::Randomf(0.0f, 100.0f);
-		const float rx = Util::Randomf(0.0f, gridSize.x -1.0f);
-		const float ry = Util::Randomf(0.0f, gridSize.y -1.0f);
+
+		float rx = Util::Randomf(cx - regenRadius, cx + regenRadius);
+		float ry = Util::Randomf(cy - regenRadius, cy + regenRadius);
+
+		rx = Util::Clamp(rx, 0.0f, gridSize.x - 1.0f);
+		ry = Util::Clamp(ry, 0.0f, gridSize.y - 1.0f);
 
 		if (rv >= 75.0f)
 		{
@@ -716,6 +773,9 @@ void GameLevel::Regen()
 			newEnemy = segfaultPool->Acquire();
 		}
 
+		typeIdx = static_cast<int>(EnemyType::MemoryLeak);
+		newEnemy = memoryLeakPool->Acquire();
+
 		actorData = enemyInitActorData[typeIdx];
 		actorData.position = { rx, ry };
 		newEnemy->As<Actor>()->Initialize(actorData);
@@ -727,10 +787,14 @@ void GameLevel::Regen()
 void GameLevel::LevelUp()
 {
 	++level;
+	regenTimer.Reset();
+	regenTimer.SetTargetTime(regenTime);
+	if (level >= 10)
+	{
+		return;
+	}
 
 	//regenTime *= 0.9f;
 	regenCount *= 1.2f;
-
-	regenTimer.Reset();
-	regenTimer.SetTargetTime(regenTime);
+	regenRadius += 2.5f;
 }

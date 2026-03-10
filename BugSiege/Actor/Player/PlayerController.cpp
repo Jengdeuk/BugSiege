@@ -22,6 +22,8 @@ void PlayerController::BeginPlay()
 void PlayerController::Tick(float deltaTime)
 {
 	ProcessInput(deltaTime);
+
+
 }
 
 void PlayerController::Draw()
@@ -43,10 +45,10 @@ void PlayerController::Draw()
 
 	const int cx = mousePos.x;
 	const int cy = mousePos.y;
-	const int r = static_cast<int>(GetOwner()->As<GameLevel>()->GetTowerInitData(selectedTowerTypeToBuild).radius);
-	for (int y = cy - r; y <= cy + r; ++y)
+	const float r = GetOwner()->As<GameLevel>()->GetTowerInitData(selectedTowerTypeToBuild).radius;
+	for (int y = static_cast<int>(std::round(cy - r)); y <= static_cast<int>(std::round(cy + r)); ++y)
 	{
-		for (int x = cx - r; x <= cx + r; ++x)
+		for (int x = static_cast<int>(std::round(cx - r)); x <= static_cast<int>(std::round(cx + r)); ++x)
 		{
 			if (x == cx && y == cy)
 			{

@@ -17,6 +17,7 @@ enum class EnemyType
 	Worm,
 	Trojan,
 	MemoryLeak,
+	MemoryLeakSmall,
 	Segfault,
 	Count
 };

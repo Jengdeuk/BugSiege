@@ -1,6 +1,37 @@
 #include "MutexBarrier.h"
 
 #include "Level/GameLevel.h"
+#include "Actor/Enemy/Enemy.h"
+
+void MutexBarrier::TickAttack(float deltaTime)
+{
+	attackTimer.Tick(deltaTime);
+	if (!attackTimer.IsTimeOut())
+	{
+		return;
+	}
+
+	targets = GetOwner()->As<GameLevel>()->QueryActorsInUniformGrid(Vector2<int>(GetPosition()), GetTowerData().radius);
+
+	attackTimer.Reset();
+	Attack();
+}
+
+void MutexBarrier::Attack()
+{
+	for (Actor* actor : targets)
+	{
+		Enemy* enemy = actor->As<Enemy>();
+		if (!enemy->HasOccured() || enemy->HasFixed())
+		{
+			continue;
+		}
+
+		enemy->Stunned();
+	}
+
+	PlayBackColorAnimation(GetTowerData().attackAnimSeq);
+}
 
 void MutexBarrier::UpdateGridsForNavigation()
 {

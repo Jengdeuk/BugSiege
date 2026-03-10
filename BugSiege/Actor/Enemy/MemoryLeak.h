@@ -6,4 +6,6 @@ class MemoryLeak : public Enemy
 {
 	RTTI_DECLARATIONS(MemoryLeak, Enemy)
 
+private:
+	virtual void Damaged(const int damage) override;
 };

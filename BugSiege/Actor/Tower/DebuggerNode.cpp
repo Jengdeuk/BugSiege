@@ -7,7 +7,6 @@ void DebuggerNode::Attack()
 {
 	Actor* target = nullptr;
 	int lHP = 12345;
-	const Vector2<float>& pos = GetPosition();
 	for (Actor* actor : targets)
 	{
 		Enemy* enemy = actor->As<Enemy>();
@@ -16,10 +15,10 @@ void DebuggerNode::Attack()
 			continue;
 		}
 
-		int heath = enemy->GetEnemyData().health;
-		if (heath < lHP)
+		const int health = enemy->GetEnemyData().health;
+		if (health < lHP)
 		{
-			heath = lHP;
+			lHP = health;
 			target = actor;
 		}
 	}

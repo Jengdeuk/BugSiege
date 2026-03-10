@@ -98,6 +98,8 @@ namespace JD
 		inline const Vector2<float>& GetPosition() const { return position; }
 
 		inline const AnimSequence& GetAnimSequence() const { return animSequence; }
+		inline const AnimSequence& GetColorAnimSequence() const { return colorAnimSequence; }
+		inline const AnimSequence& GetBackColorAnimSequence() const { return backColorAnimSequence; }
 
 		inline void SetImage(const char* newImage) { image = newImage; }
 		inline void SetColor(const WORD newColor) { color = newColor; }

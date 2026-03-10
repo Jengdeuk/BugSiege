@@ -40,6 +40,9 @@ void Enemy::Tick(float deltaTime)
 	case State::Attack:
 		TickAttack(deltaTime);
 		break;
+	case State::Stunned:
+		TickStunned(deltaTime);
+		break;
 	case State::Fixed:
 		TickFixed(deltaTime);
 		break;
@@ -60,6 +63,9 @@ void Enemy::ChangeState(const State nxtState)
 	case State::Attack:
 		attackTimer.Reset();
 		attackTimer.SetTargetTime(enemyData.reloadTime);
+		break;
+	case State::Stunned:
+		PlayBackColorAnimation(enemyData.stunnedAnimSeq);
 		break;
 	case State::Fixed:
 		PlayAnimation(enemyData.fixedAnimSeq);
@@ -114,6 +120,16 @@ void Enemy::TickAttack(float deltaTime)
 	Attack();
 }
 
+void Enemy::TickStunned(float deltaTime)
+{
+	if (GetBackColorAnimSequence().seq)
+	{
+		return;
+	}
+
+	ChangeState(State::Search);
+}
+
 void Enemy::TickFixed(float deltaTime)
 {
 	if (GetAnimSequence().seq)
@@ -145,6 +161,7 @@ void Enemy::UpdateUniformGrid()
 
 	level->RemoveActorInUniformGrid(cellPos, this);
 	level->InsertActorInUniformGrid(pos, this);
+	cellPos = pos;
 }
 
 void Enemy::Attack()
@@ -163,6 +180,11 @@ void Enemy::Damaged(const int damage)
 		GetOwner()->As<GameLevel>()->GainCPU(enemyData.cpu);
 		ChangeState(State::Fixed);
 	}
+}
+
+void Enemy::Stunned()
+{
+	ChangeState(State::Stunned);
 }
 
 bool Enemy::CanAttack()

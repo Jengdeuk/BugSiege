@@ -100,9 +100,11 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor\Effect\ExplosionEffect.cpp" />
     <ClCompile Include="Actor\Enemy\Bug.cpp" />
     <ClCompile Include="Actor\Enemy\Enemy.cpp" />
     <ClCompile Include="Actor\Enemy\MemoryLeak.cpp" />
+    <ClCompile Include="Actor\Enemy\MemoryLeakSmall.cpp" />
     <ClCompile Include="Actor\Enemy\Segfault.cpp" />
     <ClCompile Include="Actor\Enemy\Trojan.cpp" />
     <ClCompile Include="Actor\Enemy\Worm.cpp" />
@@ -125,9 +127,11 @@ xcopy ..\Assets\* $(OutDir)..\Assets\ /e /y</Command>
     <ClCompile Include="Physics\PhysicsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor\Effect\ExplosionEffect.h" />
     <ClInclude Include="Actor\Enemy\Bug.h" />
     <ClInclude Include="Actor\Enemy\Enemy.h" />
     <ClInclude Include="Actor\Enemy\MemoryLeak.h" />
+    <ClInclude Include="Actor\Enemy\MemoryLeakSmall.h" />
     <ClInclude Include="Actor\Enemy\Segfault.h" />
     <ClInclude Include="Actor\Enemy\Trojan.h" />
     <ClInclude Include="Actor\Enemy\Worm.h" />

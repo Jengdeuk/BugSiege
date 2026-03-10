@@ -34,7 +34,10 @@ class Bug;
 class Worm;
 class Trojan;
 class MemoryLeak;
+class MemoryLeakSmall;
 class Segfault;
+
+class ExplosionEffect;
 
 class GameLevel : public Level
 {
@@ -51,6 +54,8 @@ public:
 public:
 	void DamagedSystemCore(const int damage);
 	void GainCPU(const int amount);
+	void SummonMemoryLeakSmalls(const Vector2<float>& pos);
+	void SummonExplosionEffect(const Vector2<float>& pos);
 	bool BuildTowerToGround(const TowerType& type, const Vector2<float>& groundPos, bool isForceCommand = false);
 	void UpdateGridsForNavigation(const TowerType& type, const Vector2<int>& pos, const int value = 1);
 	std::vector<Actor*> QueryActorsInQuadTree(const Bounds& bounds);
@@ -92,6 +97,7 @@ private:
 private:
 	float regenTime = 0.0f;
 	float regenCount = 0.0f;
+	float regenRadius = 0.0f;
 	Timer regenTimer;
 	int level = 0;
 	float levelUpTime = 0.0f;
@@ -122,7 +128,9 @@ private:
 	std::unique_ptr<ObjectPool<Worm>> wormPool;
 	std::unique_ptr<ObjectPool<Trojan>> trojanPool;
 	std::unique_ptr<ObjectPool<MemoryLeak>> memoryLeakPool;
+	std::unique_ptr<ObjectPool<MemoryLeakSmall>> memoryLeakSmallPool;
 	std::unique_ptr<ObjectPool<Segfault>> segfaultPool;
+	std::unique_ptr<ObjectPool<ExplosionEffect>> explosionEffectPool;
 
 // HUD
 private:

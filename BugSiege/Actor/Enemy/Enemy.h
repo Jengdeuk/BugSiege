@@ -22,6 +22,7 @@ class Enemy : public Actor
 		Actor::AnimSequence occurAnimSeq;
 		Actor::AnimSequence attackAnimSeq;
 		Actor::AnimSequence damagedAnimSeq;
+		Actor::AnimSequence stunnedAnimSeq;
 		Actor::AnimSequence fixedAnimSeq;
 	};
 	
@@ -31,6 +32,7 @@ class Enemy : public Actor
 		Search,
 		Trace,
 		Attack,
+		Stunned,
 		Fixed,
 		Count
 	};
@@ -48,6 +50,7 @@ protected:
 	virtual void TickSearch(float deltaTime);
 	virtual void TickTrace(float deltaTime);
 	virtual void TickAttack(float deltaTime);
+	virtual void TickStunned(float deltaTime);
 	virtual void TickFixed(float deltaTime);
 
 private:
@@ -56,6 +59,7 @@ private:
 public:
 	virtual void Attack();
 	virtual void Damaged(const int damage);
+	virtual void Stunned();
 
 public:
 	inline bool HasOccured() const { return hasOccured; }

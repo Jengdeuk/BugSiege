@@ -62,9 +62,7 @@ private:
 	bool hasCollapsed = false;
 	State curState = State::Count;
 
-private:
-	Timer attackTimer;
-
 protected:
+	Timer attackTimer;
 	std::vector<Actor*> targets;
 };

@@ -16,10 +16,10 @@ void CompilerTurret::Attack()
 			continue;
 		}
 
-		float dist = LengthSq(actor->GetPosition() - pos);
+		const float dist = LengthSq(actor->GetPosition() - pos);
 		if (dist < nDist)
 		{
-			dist = nDist;
+			nDist = dist;
 			target = actor;
 		}
 	}
