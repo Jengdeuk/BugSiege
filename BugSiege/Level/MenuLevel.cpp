@@ -24,6 +24,14 @@ MenuLevel::MenuLevel()
 	));
 
 	items.emplace_back(std::make_unique<MenuItem>(
+		"New Game",
+		[]()
+		{
+			Game::Instance().NewGame();
+		}
+	));
+
+	items.emplace_back(std::make_unique<MenuItem>(
 		"Quit Game",
 		[]()
 		{
@@ -71,7 +79,7 @@ void MenuLevel::Draw()
 	const int imglen = static_cast<int>(titleImgSliced.size());
 	for (int i = 0; i < imglen; ++i)
 	{
-		Renderer::Instance().Submit(titleImgSliced[i].get(), Vector2<int>(5, 5 + i), Color::DarkCyan, 0);
+		Renderer::Instance().Submit(titleImgSliced[i].get(), Vector2<int>(5, 5 + i), Color::Cyan, 0);
 	}
 
 	for (int i = 0; i < static_cast<int>(items.size()); ++i)

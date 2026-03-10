@@ -233,7 +233,7 @@ static const Actor::ActorData enemyInitActorData[static_cast<int>(EnemyType::Cou
 static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Count)] =
 {
 	{ // Bug
-		1, 1, 7, 2, 1.15f, 1.2f, 6.0f,
+		1, 1, 7, 2, 1.1f, 1.2f, 3.0f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -242,7 +242,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // Worm
-		2, 1, 10, 1, 3.5f, 0.75f, 15.0f,
+		2, 1, 10, 1, 2.1f, 0.75f, 7.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -251,7 +251,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // Trojan
-		3, 2, 50, 5, 1.1f, 1.5f, 3.5f,
+		3, 2, 50, 5, 1.1f, 1.5f, 1.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -260,7 +260,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // MemoryLeak
-		4, 2, 13, 3, 1.15f, 1.0f, 4.5f,
+		4, 2, 13, 3, 1.15f, 1.0f, 3.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -269,7 +269,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // MemoryLeakSmall
-		4, 1, 13, 3, 1.15f, 1.0f, 4.5f,
+		4, 1, 13, 3, 1.15f, 1.0f, 3.5f,
 		ANIMSEQ(occurAnimSeqEnemy),
 		ANIMSEQ(attackAnimSeqEnemy),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -278,7 +278,7 @@ static const Enemy::EnemyData enemyInitEnemyData[static_cast<int>(EnemyType::Cou
 	},
 
 	{ // Segfault
-		5, 5, 50, 10, 2.1f, 0.35f, 7.0f,
+		5, 5, 50, 10, 2.1f, 0.35f, 5.0f,
 		ANIMSEQ(occurAnimSeqSegfault),
 		ANIMSEQ(attackAnimSeqSegfault),
 		ANIMSEQ(damagedAnimSeqRGB),
@@ -303,7 +303,7 @@ void GameLevel::Initialize()
 
 	regenTime = 5.0f;
 	regenCount = 1.0f;
-	regenRadius = 10.0f;
+	regenRadius = 20.0f;
 	regenTimer.Reset();
 	regenTimer.SetTargetTime(regenTime);
 
@@ -311,6 +311,10 @@ void GameLevel::Initialize()
 	levelUpTime = 15.0f;
 	levelUpTimer.Reset();
 	levelUpTimer.SetTargetTime(levelUpTime);
+
+	hasDamaged = false;
+	damagedAnimTime = 0.1f;
+	damagedAnimTimer.SetTargetTime(damagedAnimTime);
 
 	// Navigation & Partition
 	static const Vector2<int> gridSize = Engine::Instance().GetGridSize();
@@ -345,9 +349,9 @@ void GameLevel::Initialize()
 	// System Core
 	float centerX = static_cast<float>((gridSize.x - 1) / 2);
 	float centerY = static_cast<float>((gridSize.y - 1) / 2);
-	const int dx[] = { 0, 1, 0, 1 };
-	const int dy[] = { 0, 0, 1, 1 };
-	for (int i = 0; i < 4; ++i)
+	const int dx[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	const int dy[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	for (int i = 0; i < 9; ++i)
 	{
 		BuildTowerToGround(TowerType::SystemCore, Vector2<float>(centerX + dx[i], centerY + dy[i]), true);
 	}
@@ -369,6 +373,20 @@ void GameLevel::Tick(float deltaTime)
 
 	if (isGameOver)
 	{
+		if (Input::Instance().GetKeyDown('Q'))
+		{
+			Game::Instance().QuitEngine();
+			return;
+		}
+		else if (Input::Instance().GetKeyDown('R'))
+		{
+			Game::Instance().NewGame();
+			return;
+		}
+
+		playerController->Tick(deltaTime);
+		playerController->SetSelectedTowerTypeToBuild();
+		//playerController->SetCamPositionToStart();
 		return;
 	}
 
@@ -389,12 +407,26 @@ void GameLevel::Tick(float deltaTime)
 		Regen();
 	}
 
+	if (hasDamaged)
+	{
+		playerController->ShakeCam(0.5f);
+
+		damagedAnimTimer.Tick(deltaTime);
+		if (damagedAnimTimer.IsTimeOut())
+		{
+			hasDamaged = false;
+			playerController->SetCamPositionBack();
+		}
+	}
+
 	survivalTime += deltaTime;
 	lastDeltaTime = deltaTime;
 }
 
 void GameLevel::Draw()
 {
+	//DrawBackground();
+
 	Super::Draw();
 
 	if (isDrawDebugQuadTree)
@@ -413,6 +445,9 @@ void GameLevel::DamagedSystemCore(const int damage)
 		integrity = 0;
 		isGameOver = true;
 	}
+
+	hasDamaged = true;
+	damagedAnimTimer.Reset();
 }
 
 void GameLevel::GainCPU(const int amount)
@@ -572,6 +607,16 @@ const Tower::TowerData& GameLevel::GetTowerInitData(const TowerType& type) const
 	return towerInitTowerData[static_cast<int>(type)];
 }
 
+void GameLevel::DrawBackground()
+{
+	static const Vector2<int> sPos = Engine::Instance().GetMapStartPos();
+	static const Vector2<int> mSize = Engine::Instance().GetMapSize();
+	for (int y = sPos.y; y <= sPos.y + mSize.y; ++y)
+	{
+		Renderer::Instance().Submit("........................................................................................................", Vector2<int>(sPos.x, y), Color::DarkGray);
+	}
+}
+
 void GameLevel::DrawHUD()
 {
 	static const int screenX = Engine::Instance().GetScreenSize().x;
@@ -630,8 +675,17 @@ void GameLevel::DrawHUD()
 	Renderer::Instance().Submit("JumpToSystemCore", Vector2<int>(50, 9), Color::Gray);
 
 	// fps
-	sprintf_s(bufferFPS, "FPS:%d", static_cast<int>(1.0f / lastDeltaTime));
-	Renderer::Instance().Submit(bufferFPS, Vector2<int>(screenX - 8, 9), Color::DarkGray);
+	if (lastDeltaTime > 0.0f)
+	{
+		sprintf_s(bufferFPS, "FPS:%d", static_cast<int>(1.0f / lastDeltaTime));
+		Renderer::Instance().Submit(bufferFPS, Vector2<int>(screenX - 8, 9), Color::DarkGray);
+	}
+
+	if (isGameOver)
+	{
+		Renderer::Instance().Submit("SYSTEM CORE DESTROYED!", Vector2<int>(screenX / 2 - 11, screenY / 2 - 1), Color::Red, 20);
+		Renderer::Instance().Submit("[R]Retry [Q]Quit", Vector2<int>(screenX / 2 - 8, screenY / 2), Color::Gray, 20);
+	}
 
 	DrawBorderLine();
 }
@@ -641,31 +695,33 @@ void GameLevel::DrawBorderLine()
 	static const int screenX = Engine::Instance().GetScreenSize().x;
 	static const int screenY = Engine::Instance().GetScreenSize().y;
 
-	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 0), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 1), Color::Gray);
+	Color color = (hasDamaged ? Color::Red : Color::Gray);
+
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 0), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 1), color);
 	Renderer::Instance().Submit("Terminal Defense: Bug Siege", Vector2<int>(1, 1), Color::DarkCyan);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 1), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 2), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 2), Color::Gray);
-	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 3), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 4), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 4), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 5), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 5), Color::Gray);
-	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 6), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 7), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 7), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 8), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 8), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(0, 9), Color::Gray);
-	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 9), Color::Gray);
-	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 10), Color::Gray);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 1), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 2), color);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 2), color);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 3), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 4), color);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 4), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 5), color);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 5), color);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 6), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 7), color);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 7), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 8), color);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 8), color);
+	Renderer::Instance().Submit("|", Vector2<int>(0, 9), color);
+	Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, 9), color);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, 10), color);
 	for (int i = 11; i < screenY - 1; ++i)
 	{
-		Renderer::Instance().Submit("|", Vector2<int>(0, i), Color::Gray);
-		Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, i), Color::Gray);
+		Renderer::Instance().Submit("|", Vector2<int>(0, i), color);
+		Renderer::Instance().Submit("|", Vector2<int>(screenX - 1, i), color);
 	}
-	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, screenY - 1), Color::Gray);
+	Renderer::Instance().Submit("+------------------------------------------------------------------------------------------------------+", Vector2<int>(0, screenY - 1), color);
 }
 
 void GameLevel::UpdateFlowGridByBFS()
@@ -754,27 +810,56 @@ void GameLevel::Regen()
 		}
 		else if (rv >= 50.0f)
 		{
-			typeIdx = static_cast<int>(EnemyType::Worm);
-			newEnemy = wormPool->Acquire();
+			if (level >= 2)
+			{
+				typeIdx = static_cast<int>(EnemyType::Worm);
+				newEnemy = wormPool->Acquire();
+			}
+			else
+			{
+				typeIdx = static_cast<int>(EnemyType::Bug);
+				newEnemy = bugPool->Acquire();
+			}
 		}
 		else if (rv >= 30.0f)
 		{
-			typeIdx = static_cast<int>(EnemyType::Trojan);
-			newEnemy = trojanPool->Acquire();
+			if (level >= 3)
+			{
+				typeIdx = static_cast<int>(EnemyType::Trojan);
+				newEnemy = trojanPool->Acquire();
+			}
+			else
+			{
+				typeIdx = static_cast<int>(EnemyType::Bug);
+				newEnemy = bugPool->Acquire();
+			}
 		}
 		else if (rv >= 10.0f)
 		{
-			typeIdx = static_cast<int>(EnemyType::MemoryLeak);
-			newEnemy = memoryLeakPool->Acquire();
+			if (level >= 4)
+			{
+				typeIdx = static_cast<int>(EnemyType::MemoryLeak);
+				newEnemy = memoryLeakPool->Acquire();
+			}
+			else
+			{
+				typeIdx = static_cast<int>(EnemyType::Bug);
+				newEnemy = bugPool->Acquire();
+			}
 		}
 		else
 		{
-			typeIdx = static_cast<int>(EnemyType::Segfault);
-			newEnemy = segfaultPool->Acquire();
+			if (level >= 5)
+			{
+				typeIdx = static_cast<int>(EnemyType::Segfault);
+				newEnemy = segfaultPool->Acquire();
+			}
+			else
+			{
+				typeIdx = static_cast<int>(EnemyType::Bug);
+				newEnemy = bugPool->Acquire();
+			}
 		}
-
-		typeIdx = static_cast<int>(EnemyType::MemoryLeak);
-		newEnemy = memoryLeakPool->Acquire();
 
 		actorData = enemyInitActorData[typeIdx];
 		actorData.position = { rx, ry };
@@ -795,6 +880,6 @@ void GameLevel::LevelUp()
 	}
 
 	//regenTime *= 0.9f;
-	regenCount *= 1.2f;
-	regenRadius += 2.5f;
+	regenCount *= 1.3f;
+	regenRadius += 3.5f;
 }

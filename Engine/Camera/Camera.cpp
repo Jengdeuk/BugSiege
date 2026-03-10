@@ -32,6 +32,11 @@ namespace JD
 		Renderer::Instance().SetViewTransform(Vector2<int>(position * -1.0f));
 	}
 
+	void Camera::SetPositionBack()
+	{
+		Renderer::Instance().SetViewTransform(Vector2<int>(position * -1.0f));
+	}
+
 	void Camera::Move(const Vector2<float>& direction, float deltaTime)
 	{
 		static const Vector2<float> gridSize{ Engine::Instance().GetGridSize() };
@@ -42,5 +47,15 @@ namespace JD
 		position.y = Util::Clamp(position.y, mapHalfSize.y - 2, gridSize.y - mapHalfSize.y + 1);
 
 		Renderer::Instance().SetViewTransform(Vector2<int>(position * -1.0f));
+	}
+
+	void Camera::Shake(const float shakeStrength)
+	{
+		Vector2<float> offset;
+
+		offset.x = Util::Randomf(-shakeStrength, shakeStrength);
+		offset.y = Util::Randomf(-shakeStrength, shakeStrength);
+
+		Renderer::Instance().SetViewTransform(Vector2<int>((position + offset) * -1.0f));
 	}
 }

@@ -2,12 +2,12 @@
 
 static const Actor::AnimFrame animSeqRGB[] =
 {
-	{ 0.06f, "#", Color::Red, Color::Black },
-	{ 0.06f, "#", Color::White, Color::Black },
-	{ 0.06f, "#", Color::Green, Color::Black },
-	{ 0.06f, "*", Color::White, Color::Black },
-	{ 0.06f, "*", Color::Blue, Color::Black },
-	{ 0.06f, "*", Color::White, Color::Black }
+	{ 0.06f, "-", Color::Blue, Color::Black },
+	{ 0.06f, "=", Color::Blue, Color::Black },
+	{ 0.06f, "-", Color::Blue, Color::Black },
+	{ 0.06f, "=", Color::DarkBlue, Color::Black },
+	{ 0.06f, "-", Color::DarkBlue, Color::Black },
+	{ 0.06f, "=", Color::DarkBlue, Color::Black }
 };
 
 void ExplosionEffect::BeginPlay()

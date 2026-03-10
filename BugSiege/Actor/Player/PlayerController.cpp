@@ -22,8 +22,6 @@ void PlayerController::BeginPlay()
 void PlayerController::Tick(float deltaTime)
 {
 	ProcessInput(deltaTime);
-
-
 }
 
 void PlayerController::Draw()
@@ -71,6 +69,11 @@ void PlayerController::Draw()
 	}
 }
 
+void PlayerController::ShakeCam(const float shakeStrength)
+{
+	camera->Shake(shakeStrength);
+}
+
 void PlayerController::ProcessInput(float deltaTime)
 {
 	InputSelectTowerTypeToBuild();
@@ -80,7 +83,7 @@ void PlayerController::ProcessInput(float deltaTime)
 
 void PlayerController::InputSelectTowerTypeToBuild()
 {
-	if (Input::Instance().GetKeyDown('R'))
+	if (Input::Instance().GetMouseButtonDown(1) || Input::Instance().GetKeyDown('R'))
 	{
 		selectedTowerTypeToBuild = TowerType::Count;
 	}

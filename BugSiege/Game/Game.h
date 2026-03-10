@@ -38,6 +38,7 @@ public:
 
 public:
 	void ToggleMenu();
+	void NewGame();
 	void QuitEngine();
 
 private:

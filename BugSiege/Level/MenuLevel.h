@@ -41,7 +41,7 @@ private:
 
 private:
 	int currentIndex = 0;
-	Color selectedColor = Color::Yellow;
+	Color selectedColor = Color::Cyan;
 	Color unselectedColor = Color::Gray;
 	std::vector<std::unique_ptr<MenuItem>> items;
 

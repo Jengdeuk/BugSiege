@@ -19,6 +19,10 @@ public:
 
 public:
 	inline const TowerType& GetSelectedTowerTypeToBuild() const { return selectedTowerTypeToBuild; }
+	inline void SetSelectedTowerTypeToBuild() { selectedTowerTypeToBuild = TowerType::Count; }
+	inline void SetCamPositionToStart() { camera->SetPositionToStart(); }
+	inline void SetCamPositionBack() { camera->SetPositionBack(); }
+	void ShakeCam(const float shakeStrength);
 
 private:
 	void ProcessInput(float deltaTime);

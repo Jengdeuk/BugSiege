@@ -19,6 +19,7 @@ void MutexBarrier::TickAttack(float deltaTime)
 
 void MutexBarrier::Attack()
 {
+	bool hasAttack = false;
 	for (Actor* actor : targets)
 	{
 		Enemy* enemy = actor->As<Enemy>();
@@ -27,10 +28,14 @@ void MutexBarrier::Attack()
 			continue;
 		}
 
+		hasAttack = true;
 		enemy->Stunned();
 	}
-
-	PlayBackColorAnimation(GetTowerData().attackAnimSeq);
+	
+	if (hasAttack)
+	{
+		PlayBackColorAnimation(GetTowerData().attackAnimSeq);
+	}
 }
 
 void MutexBarrier::UpdateGridsForNavigation()

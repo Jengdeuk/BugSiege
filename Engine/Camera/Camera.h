@@ -18,10 +18,12 @@ namespace JD
 
 	public:
 		void Move(const Vector2<float>& direction, float deltaTime);
+		void Shake(const float shakeStrength);
 
 	public:
 		void SetPosition(const Vector2<float>& newPosition);
 		void SetPositionToStart();
+		void SetPositionBack();
 		inline const Vector2<float>& GetPosition() const { return position; }
 
 	private:

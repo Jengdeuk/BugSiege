@@ -41,6 +41,14 @@ void Game::ToggleMenu()
 	Engine::Instance().SetNewLevel(levels[static_cast<int>(state)].get());
 }
 
+void Game::NewGame()
+{
+	levels[0] = std::make_unique<GameLevel>(Engine::Instance().GetMapSize());
+
+	system("cls");
+	Engine::Instance().SetNewLevel(levels[static_cast<int>(State::GamePlay)].get());
+}
+
 void Game::QuitEngine()
 {
 	Engine::Instance().QuitEngine();

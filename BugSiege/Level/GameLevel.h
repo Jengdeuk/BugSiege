@@ -76,6 +76,7 @@ public:
 	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
 
 private:
+	void DrawBackground();
 	void DrawHUD();
 	void DrawBorderLine();
 
@@ -102,6 +103,11 @@ private:
 	int level = 0;
 	float levelUpTime = 0.0f;
 	Timer levelUpTimer;
+
+private:
+	bool hasDamaged = false;
+	float damagedAnimTime = 0.0f;
+	Timer damagedAnimTimer;
 
 // Navigation
 private:

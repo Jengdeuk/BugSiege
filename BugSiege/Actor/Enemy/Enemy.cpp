@@ -19,6 +19,19 @@ void Enemy::Initialize(const EnemyData& initData)
 void Enemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	const Vector2<float> pos = GetPosition();
+	float nearDist = 12345678.9f;
+	for (auto& systemCore : GetOwner()->As<GameLevel>()->GetSystemCores())
+	{
+		float dist = sqrt(LengthSq(systemCore->GetPosition() - pos));
+		if (dist < nearDist)
+		{
+			nearDist = dist;
+			target = systemCore;
+		}
+	}
+
 	ChangeState(State::Occur);
 }
 
@@ -189,17 +202,5 @@ void Enemy::Stunned()
 
 bool Enemy::CanAttack()
 {
-	const Vector2<float> pos = GetPosition();
-	float nearDist = 12345678.9f;
-	for (auto& systemCore : GetOwner()->As<GameLevel>()->GetSystemCores())
-	{
-		float dist = sqrt(LengthSq(systemCore->GetPosition() - pos));
-		if (dist < nearDist)
-		{
-			nearDist = dist;
-			target = systemCore;
-		}
-	}
-
-	return nearDist <= GetEnemyData().radius;
+	return sqrt(LengthSq(target->GetPosition() - GetPosition())) <= GetEnemyData().radius;
 }
