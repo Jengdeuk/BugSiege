@@ -71,7 +71,6 @@ public:
 	inline const std::vector<std::vector<bool>>& GetWallGrid() const { return wallGrid; }
 	inline const Vector2<int>& GetNextNodeByFlowField(const Vector2<int>& pos) const { return flowGrid[pos.y][pos.x]; }
 	inline const std::vector<SystemCore*>& GetSystemCores() const { return systemCores; }
-	inline void SetSegfaultCount() { --segfaultCount; }
 
 public:
 	const Tower::TowerData& GetTowerInitData(const TowerType& type) const;
@@ -103,8 +102,6 @@ private:
 	float regenRadius = 0.0f;
 	Timer regenTimer;
 	int level = 0;
-	int segfaultCount = 0;
-	int maxSegfaultCount = 0;
 	float levelUpTime = 0.0f;
 	Timer levelUpTimer;
 

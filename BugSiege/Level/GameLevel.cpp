@@ -312,8 +312,6 @@ void GameLevel::Initialize()
 	regenTimer.SetTargetTime(regenTime);
 
 	level = 1;
-	segfaultCount = 0;
-	maxSegfaultCount = 5;
 	levelUpTime = 15.0f;
 	levelUpTimer.Reset();
 	levelUpTimer.SetTargetTime(levelUpTime);
@@ -371,10 +369,10 @@ void GameLevel::Tick(float deltaTime)
 		return;
 	}
 
-	if (Input::Instance().GetKeyDown('7'))
-	{
-		GainCPU(100);
-	}
+	//if (Input::Instance().GetKeyDown('7'))
+	//{
+	//	GainCPU(100);
+	//}
 
 	if (Input::Instance().GetKeyDown('0'))
 	{
@@ -704,10 +702,12 @@ void GameLevel::DrawHUD()
 
 	// Other
 	Renderer::Instance().Submit("Action: ", Vector2<int>(1, 9), Color::White);
-	Renderer::Instance().Submit("[Cursor, W, A, S, D]", Vector2<int>(9, 9), Color::DarkCyan);
-	Renderer::Instance().Submit("ControlCamera", Vector2<int>(29, 9), Color::Gray);
-	Renderer::Instance().Submit("[Space]", Vector2<int>(43, 9), Color::DarkCyan);
-	Renderer::Instance().Submit("JumpToSystemCore", Vector2<int>(50, 9), Color::Gray);
+	Renderer::Instance().Submit("[Space]", Vector2<int>(9, 9), Color::DarkCyan); // 7
+	Renderer::Instance().Submit("JumpToSystemCore", Vector2<int>(16, 9), Color::Gray); // 17
+	Renderer::Instance().Submit("[Cursor, W, A, S, D]", Vector2<int>(33, 9), Color::DarkCyan); // 20
+	Renderer::Instance().Submit("ControlCamera", Vector2<int>(53, 9), Color::Gray); // 14
+	Renderer::Instance().Submit("[O, P]", Vector2<int>(67, 9), Color::DarkCyan); // 6
+	Renderer::Instance().Submit("ControlTimeSpeed", Vector2<int>(73, 9), Color::Gray);
 
 	// fps
 	if (lastDeltaTime > 0.0f)
@@ -884,9 +884,8 @@ void GameLevel::Regen()
 		}
 		else
 		{
-			if (level >= 5 && segfaultCount < maxSegfaultCount)
+			if (level >= 5)
 			{
-				++segfaultCount;
 				typeIdx = static_cast<int>(EnemyType::Segfault);
 				newEnemy = segfaultPool->Acquire();
 			}

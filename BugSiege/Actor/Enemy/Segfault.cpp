@@ -160,7 +160,6 @@ void Segfault::Damaged(const int damage)
 
 	if (HasFixed())
 	{
-		GetOwner()->As<GameLevel>()->SetSegfaultCount();
 		path.clear();
 	}
 }
