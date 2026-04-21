@@ -1,49 +1,44 @@
-# The Legend of Zelda: Breath of the Wild
-🏹 3D Action Adventure<br>
+# Terminal Defense: Bug Siege
+👾 2D ASCII tower defense<br>
+A*, Quad Tree 알고리즘 시각화를 주제로 개발한 콘솔 앱 기반의 2D 타워 디펜스 게임입니다.
 
-| 게임 명 | 젤다의 전설: 야생의 숨결 모작 |
+| 게임 명 | Terminal Defense: Bug Siege |
 | --- | --- |
-| 게임 장르 | 액션 어드벤처 |
-| 플랫폼 | PC (Windows) |
+| 게임 장르 | 타워 디펜스 |
+| 플랫폼 | PC (Windows, Console Application) |
 | 개발 인원 | 1인 |
-| 사용 엔진 | Unreal Engine 5.6.1 |
-| 프로젝트 기간 | 2026.03.24 ~ 2026.04.06 (14일)) |
-| 배포 | [구글 드라이브 링크](https://drive.google.com/file/d/1QUrdtpGDwYDxwX2RkqwOZbQwVYEdehxF/view?usp=sharing) |
-| 개발 내용 | [노션 링크](https://jengdeuk.notion.site/33d5d8590d11808d85a1e6a3c823eda6) |
+| 사용 엔진 | C++ 기반 자체 개발 |
+| 프로젝트 기간 | 2026.03.04 ~ 2026.03.10 (7일) |
+| 배포 | [구글 드라이브 링크](https://drive.google.com/file/d/1tyiLLqg0sZ9AhpaeeGh0OrTi0a0qdMXr/view?usp=sharing) |
+| 개발 내용 | [노션 링크](https://jengdeuk.notion.site/Terminal-Defense-Bug-Siege-3255d8590d11805ca5c4f1dad2f4291f) |
 
 ## 게임 소개
 
 <aside>
-💡 원티드 포텐업에서 진행하는 게임 개발자 양성과정 4th프로그램에서 제작한 게임입니다. <br>
-Unreal Engine 5와 Blueprint 학습을 목적으로 Nintendo의 젤다의 전설: 야생의 숨결을 모작했습니다.
+💡 `원티드 포텐업`에서 진행하는 `게임 개발자 양성과정 4th`프로그램에서 제작한 게임입니다.<br>
+A*, Quad Tree 알고리즘 시각화를 주제로, C++ 콘솔 텍스트 출력 기반의 타워 디펜스 게임을 제작했습니다.
 </aside>
 
 ## 게임 영상
 
-[유튜브 링크](https://youtu.be/dqtvNOARaIw?si=L4lqzuxHv_cVjJon)
+[유튜브 링크](https://youtu.be/iXV6w66aEbA?si=9IWg5skGd28inNqv)
 
 ## 개발 내용
 
-[노션 링크](https://jengdeuk.notion.site/33d5d8590d11808d85a1e6a3c823eda6)
-1. 플레이어 활 조준 애니메이션 - IK 움직임, 상/하체 분리
-2. 적 총구 조준 애니메이션 - Bone Modify
-3. 카툰 스타일 렌더링 - 셀 셰이딩, 림 라이트
-4. 머리카락, 천 시뮬레이션 - 클로딩
-5. 시네마틱 연출 - 레벨 시퀀스
-6. 보스 AI 작업 - BehaviorTree, FSM
-
-## 리소스 출처
-
-- 3D 모델: https://models.spriters-resource.com/wii_u/thelegendofzeldabreathofthewild/
-- 3D 애니메이션: https://www.mixamo.com/
-- UI 텍스처: http://figma.com/community/file/965825767811358609
-- VFX, 환경, 구조물: http://fab.com/
+[노션 링크](https://jengdeuk.notion.site/Terminal-Defense-Bug-Siege-3255d8590d11805ca5c4f1dad2f4291f)
+1. 오브젝트 관리 시스템 - 오브젝트 풀링
+2. 적 엘리트 유닛 이동 시스템 - A*
+3. 적 일반 유닛 이동 시스템 - Flow Field & BFS
+4. 적 엘리트 유닛 목표물 탐지 시스템 - Quad Tree
+5. 아군 타워 유닛 목표물 탐지 시스템 - Uniform Grid
+6. 유닛 시스템 - FSM
 
 ## 보완할 점
 
-- 전투, AI, 연출 등 다양한 기능을 개별적으로 구현하는 과정에서 기능 간 결합도가 높아지고 재사용성이 떨어지는 구조가 형성되었습니다. 이를 통해 기능 단위로 책임을 분리하고, 인터페이스와 컴포넌트 기반 설계를 적용하여 새로운 기능 추가 시 기존 코드를 수정하지 않도록 구조를 개선할 필요성을 느꼈습니다.
-- 일부 로직이 Tick에 의존하고 불필요한 연산이 반복되는 구조로 인해 성능 최적화의 필요성을 느꼈습니다. 이후에는 업데이트 주기 관리, 조건 기반 실행, 그리고 핵심 로직의 C++ 전환 등을 통해 성능을 개선할 수 있도록 보완하고자 합니다.
+- A* 경로 탐색 과정에서 간헐적인 병목 현상이 발생했으나, 정확한 원인을 완전히 규명하지 못했습니다. 향후에는 프로파일링 도구를 활용해 탐색 노드 수, 힙 연산 비용, 메모리 접근 패턴 등을 정량적으로 분석하여 병목 원인을 명확히 파악할 계획입니다.
+- 맵의 활용 범위가 중앙 영역에 집중되어 있어 공간 활용도가 낮았으며, 이는 기획 단계에서 플레이 영역 설계가 충분히 고려되지 않은 점에서 비롯되었습니다. 향후에는 시스템 구현과 더불어 맵 설계와의 연계도 함께 고려할 필요성을 느꼈습니다.
 
 ## 프로젝트 성과
 
-- 다양한 시스템(IK, AI, 연출, 렌더링)을 블루프린트 기반으로 통합하여 실제 플레이 가능한 프로토타입을 구현했으며, 시스템 간 연동 과정에서 발생하는 문제를 해결하며 게임 클라이언트 전반에 대한 이해도와 구조 설계 역량을 향상시켰습니다.
+- A*, Flow Field, QuadTree, Uniform Grid 등 다양한 알고리즘을 학습하고 직접 구현하여, 상황에 따라 적절한 알고리즘을 선택하고 적용하는 경험을 쌓았습니다.
+- 특히 경로 탐색과 공간 분할 문제를 해결하는 과정에서 알고리즘의 시간 복잡도와 데이터 구조 선택이 실제 성능에 미치는 영향을 체감할 수 있었습니다.
